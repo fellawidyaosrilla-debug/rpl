@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard TemuCepat</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="assets/styles.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary-blue': '#2f2cde',
+                        'secondary-gray': '#f4f6f9',
+                        'purple-light': '#f3f4f6',
+                    }
+                }
+            }
+        }
+
+        // Data Aplikasi (Diterjemahkan dari React State)
+        const appData = {
+            activeMenu: 'Dashboard',
+            menuItems: [
+                { name: 'Dashboard', icon: 'fa-gauge-high' },
+                { name: 'Status', icon: 'fa-box' },
+    
+            ],
+            // split Laporan into two actionable cards (Kehilangan & Ditemukan)
+            statsCards: [
+                { id: 'kehilangan', title: 'Laporan Kehilangan', value: '1.2K', change: 'Lihat laporan kehilangan', color: 'from-purple-500 to-purple-400' },
+                { id: 'ditemukan', title: 'Laporan Ditemukan', value: '1.2K', change: 'Lihat laporan ditemukan', color: 'from-blue-500 to-blue-400' }
+            ],
+            // sample reports (in real app fetched from server)
+            lostReports: [
+                { title: 'Dompet Kulit', location: 'Gedung G', date: '2025-11-13', reporter: '0812-3456-0003', status: 'Pending' },
+                { title: 'Jam Tangan', location: 'Gedung H', date: '2025-11-09', reporter: '0812-9876-0001', status: 'Diterima' }
+            ],
+            foundReports: [
+                { title: 'Kunci Mobil', location: 'Parkiran Utama', date: '2025-11-11', reporter: '0812-3456-0005', status: 'Diterima' },
+                { title: 'HP iPhone 17', location: 'Gedung H', date: '2025-11-08', reporter: '0812-3456-0004', status: 'Pending' }
+            ],
+            tableData: [
+                { name: 'César Anaya', email: 'cesaranaya093@gmail.com', usertype: 'Admin', joined: '9th April 2020', status: 'Pending' },
+                { name: 'James Baker Fly', email: 'jamesbaker@gmail.com', usertype: 'Admin', joined: '28th March 2020', status: 'Pending' },
+                { name: 'Majed Albahory', email: 'albahory@gmail.com', usertype: 'Admin', joined: '30th March 2020', status: 'Pending' },
+                { name: 'Charlotte White', email: 'charlotte@gmail.com', usertype: 'Admin', joined: '3rd February 2020', status: 'Pending' },
+            ],
+        };
+
+        function setActiveMenu(menuName) {
+            appData.activeMenu = menuName;
+            if(menuName === 'Status') {
+                window.location.href = 'status admin.html';
+            }
+            renderSidebar();
+            renderContent();
+        }
+
+        function renderStatusPage() {
+            const dashboardContent = document.getElementById('dashboard-content');
+            if(!dashboardContent) return;
+
+            // Combine all reports (lost + found)
+            const allReports = [
+                ...appData.lostReports.map(rep => ({...rep, type: 'Kehilangan'})),
+                ...appData.foundReports.map(rep => ({...rep, type: 'Ditemukan'}))
+            ];
+
+            dashboardContent.innerHTML = `
+                <h1 class="text-2xl font-bold text-gray-800 mb-6">Status Laporan</h1>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[800px]">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">No</th>
+                                    <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Nama Barang</th>
+                                    <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Tipe</th>
+                                    <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Lokasi</th>
+                                    <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Tanggal</th>
+                                    <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Pelapor</th>
+                                    <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${allReports.map((rep, idx) => `
+                                    <tr class="border-b hover:bg-gray-50">
+                                        <td class="py-4 px-4 text-sm text-gray-700">${idx+1}</td>
+                                        <td class="py-4 px-4 text-sm text-gray-700">${rep.title}</td>
+                                        <td class="py-4 px-4 text-sm">
+                                            <span class="px-3 py-1 rounded-full text-xs font-semibold ${rep.type === 'Kehilangan' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}">
+                                                ${rep.type}
+                                            </span>
+                                        </td>
+                                        <td class="py-4 px-4 text-sm text-gray-600">${rep.location}</td>
+                                        <td class="py-4 px-4 text-sm text-gray-600">${rep.date}</td>
+                                        <td class="py-4 px-4 text-sm text-gray-600">${rep.reporter}</td>
+                                        <td class="py-4 px-4 text-sm">
+                                            <span class="px-3 py-1 rounded-full text-xs font-semibold ${rep.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">
+                                                ${rep.status}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSidebar() {
+            const sidebarNav = document.getElementById('sidebar-nav');
+            if (!sidebarNav) return;
+
+            sidebarNav.innerHTML = appData.menuItems.map(item => `
+                <button
+                    onclick="setActiveMenu('${item.name}')"
+                    class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-left ${
+                        appData.activeMenu === item.name
+                            ? 'bg-purple-50 text-purple-600'
+                            : 'text-gray-600 hover:bg-gray-50'
+                    }"
+                >
+                    <i class="fas ${item.icon} w-5 text-center"></i>
+                    <span class="text-sm font-medium">${item.name}</span>
+                </button>
+            `).join('');
+        }
+        
+        function renderContent() {
+            // Render Stat Cards (clickable to show reports) - 2 equal columns
+            const statsContainer = document.getElementById('stats-cards');
+            if(!statsContainer) return;
+            
+            statsContainer.innerHTML = appData.statsCards.map(card => `
+                <div onclick="showReports('${card.id}')" class="cursor-pointer bg-gradient-to-br ${card.color} rounded-2xl p-6 text-white shadow-lg hover:shadow-2xl transition-shadow">
+                    <div class="flex items-center gap-3 mb-3">
+                        <i class="fas fa-database text-xl"></i>
+                        <h3 class="font-semibold">${card.title}</h3>
+                    </div>
+                    <p class="text-3xl font-bold mb-2">${card.value}</p>
+                    <p class="text-sm opacity-90">${card.change}</p>
+                </div>
+            `).join('');
+            // helper to show report cards (renders a full-width table-like list)
+            window.showReports = function(type){
+                const panel = document.getElementById('reports-panel');
+                let list = [];
+                if(type === 'kehilangan') list = appData.lostReports;
+                if(type === 'ditemukan') list = appData.foundReports;
+                if(!list || list.length === 0){
+                    panel.classList.remove('hidden');
+                    panel.innerHTML = `<div class="p-6 bg-white rounded-2xl border border-gray-100">Tidak ada laporan.</div>`;
+                    return;
+                }
+
+                // Build a full-width table container that matches the dashboard table style
+                panel.classList.remove('hidden');
+                panel.innerHTML = `
+                    <div class="p-6 bg-white rounded-2xl border border-gray-100 shadow">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">${ type === 'kehilangan' ? 'Laporan Kehilangan' : 'Laporan Ditemukan' }</h3>
+                            <div>
+                                <button onclick="hideReportsPanel()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg">Kembali</button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full min-w-[700px]">
+                                <thead>
+                                    <tr class="border-b border-gray-200">
+                                        <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">No</th>
+                                        <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Nama Barang</th>
+                                        <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Lokasi</th>
+                                        <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Upload</th>
+                                        <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Pelapor</th>
+                                        <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Status</th>
+                                        <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${list.map((rep, idx) => `
+                                        <tr class="border-b hover:bg-gray-50">
+                                            <td class="py-4 px-4 text-sm text-gray-700">${idx+1}</td>
+                                            <td class="py-4 px-4 text-sm text-gray-700">${rep.title}</td>
+                                            <td class="py-4 px-4 text-sm text-gray-600">${rep.location}</td>
+                                            <td class="py-4 px-4 text-sm text-gray-600">${rep.date}</td>
+                                            <td class="py-4 px-4 text-sm text-gray-600">${rep.reporter}</td>
+                                            <td class="py-4 px-4 text-sm">
+                                                <select onchange="updateStatus(${idx}, '${type}', this.value)" class="px-2 py-1 rounded-lg text-xs font-semibold border ${rep.status === 'Pending' ? 'bg-yellow-100 text-yellow-800 border-yellow-300' : 'bg-green-100 text-green-800 border-green-300'}">
+                                                    <option value="Pending" ${rep.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                                    <option value="Diterima" ${rep.status === 'Diterima' ? 'selected' : ''}>Diterima</option>
+                                                </select>
+                                            </td>
+                                            <td class="py-4 px-4 text-sm text-gray-600">
+                                                <button onclick="viewReport(${idx},'${type}')" class="px-3 py-1 bg-purple-500 text-white rounded-lg text-sm">Rincian</button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+
+                // helpers to show/hide panel and view a report
+                window.hideReportsPanel = function(){
+                    panel.classList.add('hidden');
+                }
+                window.updateStatus = function(index, rptType, newStatus){
+                    const list = (rptType === 'kehilangan' ? appData.lostReports : appData.foundReports);
+                    if(list[index]) {
+                        list[index].status = newStatus;
+                        // refresh the table to update colors
+                        showReports(rptType);
+                    }
+                }
+                window.viewReport = function(index, rptType){
+                    const item = (rptType === 'kehilangan' ? appData.lostReports : appData.foundReports)[index];
+                    if(!item) return alert('Laporan tidak ditemukan.');
+                    alert(`Judul: ${item.title}\nLokasi: ${item.location}\nTanggal: ${item.date}\nPelapor: ${item.reporter}\nStatus: ${item.status}`);
+                }
+            }
+        }
+
+        window.onload = function() {
+            renderSidebar();
+            renderContent();
+        };
+    </script>
+</head>
+<body class="bg-secondary-gray">
+    <style>
+        /* Footer styles are now in shared stylesheet (assets/styles.css) */
+    </style>
+
+    <div class="flex h-screen">
+        
+        <!-- Sidebar -->
+        <div class="w-64 bg-white shadow-xl flex-shrink-0">
+            <!-- Header Sidebar -->
+            <div class="p-6 border-b border-gray-100">
+                <div class="flex items-center gap-3">
+                    <!-- Logo / Admin Dashboard Title -->
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white">AD</div>
+                    <div>
+                        <h2 class="font-bold text-gray-800 text-sm">Dashboard Admin</h2>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Menu Items -->
+            <div class="p-4 overflow-y-auto">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 rounded-full bg-gray-200">
+                        <!-- Placeholder User Image -->
+                        <img src="https://placehold.co/40x40/ccc/000?text=JD" alt="User" class="rounded-full">
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-800">Admin</p>
+                        <p class="text-xs text-gray-500">Administrator</p>
+                    </div>
+                </div>
+
+                <nav id="sidebar-nav" class="space-y-1">
+                    <!-- Menu items are rendered here by JavaScript -->
+                </nav>
+            </div>
+            
+            <!-- Footer Sidebar (Contoh) -->
+            <div class="p-4 border-t border-gray-100 mt-auto">
+                <button class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-sign-out-alt w-5 text-center"></i>
+                    <span class="text-sm font-medium">Logout</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 overflow-auto">
+            
+            <!-- Header Utama (Top Bar) -->
+            <div class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-10">
+                <div class="flex items-center justify-between px-8 py-4">
+                    
+                    <!-- Search Bar -->
+                    <div class="flex items-center gap-4 flex-1 max-w-xl border border-gray-200 rounded-lg py-2 px-4 focus-within:border-purple-400 transition-colors">
+                        <i class="fas fa-search text-gray-400 text-sm"></i>
+                        <input
+                            type="text"
+                            placeholder="Search Project"
+                            class="flex-1 outline-none text-sm text-gray-600"
+                        />
+                    </div>
+                    
+                    <!-- Right Icons and User Profile -->
+                    <div class="flex items-center gap-6">
+                        
+                        <!-- Language (Simplified) -->
+                        <div class="flex items-center gap-2 text-sm">
+                            <span class="text-gray-700">ID | Indonesia</span>
+                        </div>
+                        
+                        <!-- Notification Icons -->
+                        <div class="flex items-center gap-3">
+                            <a href="notifikasi.html" class="p-2 hover:bg-gray-100 rounded-lg relative" aria-label="Notifikasi">
+                                <i class="fas fa-bell text-gray-600 text-lg" aria-hidden="true"></i>
+                                <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" aria-hidden="true"></span>
+                            </a>
+                            <button class="p-2 hover:bg-gray-100 rounded-lg relative" aria-label="Pesan">
+                                <i class="fas fa-envelope text-gray-600 text-lg" aria-hidden="true"></i>
+                                <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" aria-hidden="true"></span>
+                            </button>
+                            <button class="p-2 hover:bg-gray-100 rounded-lg" aria-label="Favorit">
+                                <i class="fas fa-heart text-gray-600 text-lg" aria-hidden="true"></i>
+                            </button>
+                            <button class="p-2 hover:bg-gray-100 rounded-lg" aria-label="Menu">
+                                <i class="fas fa-bars text-gray-600 text-lg" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- User Profile -->
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-gray-700 font-medium">Admin</span>
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-orange-400">
+                                <img src="https://placehold.co/40x40/fae/000?text=JA" alt="Profile" class="rounded-full">
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div class="p-8">
+                <div id="dashboard-content">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-6">Dashboard</h1>
+                    
+                    <!-- Stats Cards (2 equal columns) -->
+                    <div id="stats-cards" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <!-- Cards are rendered here by JavaScript -->
+                    </div>
+
+                    <!-- Reports Panel (full-width, shows below) -->
+                    <div id="reports-panel" class="hidden">
+                        <!-- Report table will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-logo">TEMUCEPAT</div>
+            <div class="footer-links">
+                <a href="login awal.html">Beranda</a>
+                <a href="laporkanbarang.html">Laporkan Barang</a>
+                <a href="halaman login 1.html">Login</a>
+            </div>
+            <div>© 2025 TEMUCEPAT — Semua hak dilindungi.</div>
+        </div>
+    </footer>
+</body>
+</html>

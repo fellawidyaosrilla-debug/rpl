@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEMUCEPAT - Kotak Notifikasi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="assets/styles.css">
+    
+    <style>
+        /* Gaya Dasar */
+        body {
+            font-family: 'Playfair Display', serif;
+            margin: 0;
+            color: #333;
+        }
+
+        /* --- Header (matching TEMUCEPAT gray header) --- */
+        .custom-header {
+            background-color: #7a8a99;
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .custom-header .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+        .custom-header .right-group {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .custom-header .icon {
+            color: #fff;
+            font-size: 20px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .custom-header .login-btn {
+            background-color: #98befb;
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 22px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+        }
+        .custom-header .login-btn:hover { background-color: #7fafeb; }
+
+        /* Area Konten Utama */
+        .main-content {
+            padding: 50px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* --- Gaya Heading Utama --- */
+        .page-heading {
+            font-size: 3em; 
+            font-weight: bold;
+            color: #4a4a4a; 
+            margin-bottom: 5px;
+        }
+
+        .page-subheading {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 15px;
+        }
+
+        /* --- Gaya Kotak Notifikasi --- */
+        .notification-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .notification-item {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between; 
+            transition: transform 0.2s;
+            cursor: pointer; /* Menandakan item bisa diklik */
+        }
+
+        .notification-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Notifikasi Belum Dibaca */
+        .notification-item.unread {
+            border-left: 5px solid #007bff; /* Garis biru tebal untuk penekanan */
+            background-color: #eef7ff; /* Latar belakang biru muda */
+        }
+
+        .notification-icon {
+            font-size: 1.5em;
+            margin-right: 20px;
+            color: #4a4a4a;
+        }
+        
+        .notification-content {
+            flex-grow: 1; 
+        }
+
+        .notification-item.unread .notification-icon {
+            color: #007bff;
+        }
+
+        .notification-content h4 {
+            margin: 0 0 5px 0;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .notification-content p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .notification-time {
+            font-size: 0.8em;
+            color: #aaa;
+            margin-top: 5px;
+            display: block;
+        }
+        
+        /* --- Gaya Status Indikator --- */
+        .notification-status {
+            font-size: 0.8em;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 20px;
+            margin-left: 20px;
+            align-self: flex-start; 
+            white-space: nowrap; 
+        }
+
+        /* Gaya Status "Belum Dibaca" */
+        .status-unread {
+            background-color: #ff5757; /* Merah cerah */
+            color: white;
+        }
+        
+        /* Gaya Status "Dibaca" */
+        .status-read {
+            background-color: #eee;
+            color: #666;
+        }
+
+        /* Tombol Aksi */
+        .action-button {
+            padding: 10px 20px;
+            background-color: #5d9cec; 
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .action-button:hover {
+            background-color: #4a80c9;
+        }
+
+        .notification-controls { display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
+        .modal-image { width:100%; border-radius:8px; display:block; }
+        /* Detail modal overlay */
+        .overlay-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 2200; }
+        .overlay-modal.active { display: flex; }
+        .modal-panel { background: #fff; width: 720px; max-width: calc(100% - 48px); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; }
+        .modal-body { display: flex; gap: 24px; padding: 20px; }
+        .modal-left { flex: 1 1 45%; }
+        .modal-right { flex: 1 1 55%; display: flex; flex-direction: column; }
+        .modal-right h3 { margin: 0 0 8px 0; font-size: 20px; }
+        .modal-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px 0; }
+        .modal-meta .chip { background:#f3f4f6; padding:8px 12px; border-radius: 8px; font-size: 13px; }
+        .modal-actions { display:flex; gap:12px; margin-top: auto; }
+        .btn-primary { background:#2f2cde; color:#fff; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; }
+        .btn-secondary { background:#eee; color:#333; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; }
+        .detail-btn { background: transparent; border: 1px solid #e0e0e0; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:13px; }
+    </style>
+</head>
+<body>
+
+    <header class="custom-header" role="banner">
+        <div class="logo">TEMUCEPAT</div>
+        <div class="right-group">
+            <a class="icon" href="notifikasi.html" title="Notifikasi"><i class="fas fa-bell"></i></a>
+            <a class="login-btn" href="halaman login 1.html">Login</a>
+        </div>
+    </header>
+
+    <div class="main-content">
+        
+        <h1 class="page-heading">Kotak Notifikasi Anda</h1>
+        <p class="page-subheading">Lihat semua pembaruan terbaru, barang yang cocok, dan aktivitas akun.</p>
+        
+        <button class="action-button">Tandai Semua Sudah Dibaca</button>
+
+        <ul id="notification-list" class="notification-list">
+            
+            <li class="notification-item unread" data-title="Dompet" data-desc="Ada barang baru yang dilaporkan: Kunci Motor Yamaha. Cocok dengan kriteria pencarian Anda." data-location="Gedung G" data-date="2025-11-13" data-contact="0812-3456-0003" data-verified="false">
+                <span class="notification-icon"><i class="fas fa-wallet"></i></span>
+                <div class="notification-content">
+                    <h4>Dompet</h4>
+                    <p>Ada barang baru yang dilaporkan, yaitu <strong>Kunci Motor Yamaha</strong>, cocok dengan kriteria pencarian Anda.</p>
+                    <span class="notification-time">Baru Saja</span>
+                </div>
+                <div class="notification-controls">
+                    <span class="notification-status status-unread">BELUM DIBACA</span>
+                    <button class="detail-btn" aria-expanded="false">Rincian</button>
+                </div>
+            </li>
+
+            <li class="notification-item" data-title="Verifikasi Sukses" data-desc="Akun Anda telah berhasil diverifikasi." data-location="-" data-date="2025-11-26" data-contact="0812-0000-0000" data-verified="true">
+                <span class="notification-icon"><i class="fas fa-user-check"></i></span>
+                <div class="notification-content">
+                    <h4>Verifikasi Sukses</h4>
+                    <p>Akun Anda telah berhasil diverifikasi. Anda sekarang dapat melaporkan barang hilang dan ditemukan.</p>
+                    <span class="notification-time">1 Jam Lalu</span>
+                </div>
+                <div class="notification-controls">
+                    <span class="notification-status status-read">DIBACA</span>
+                    <button class="detail-btn" aria-expanded="false">Rincian</button>
+                </div>
+            </li>
+
+            <li class="notification-item unread" data-title="Jam Tangan" data-desc="Anda menerima pesan baru mengenai barang 'Jam Tangan'." data-location="Gedung H" data-date="2025-11-25" data-contact="0812-9876-0001" data-verified="false">
+                <span class="notification-icon"><i class="fas fa-watch"></i></span>
+                <div class="notification-content">
+                    <h4>Jam Tangan</h4>
+                    <p>Anda menerima pesan baru mengenai barang "Jam Tangan".</p>
+                    <span class="notification-time">Kemarin</span>
+                </div>
+                <div class="notification-controls">
+                    <span class="notification-status status-unread">BELUM DIBACA</span>
+                    <button class="detail-btn" aria-expanded="false">Rincian</button>
+                </div>
+            </li>
+
+            <li class="notification-item" data-title="Pembaruan Sistem" data-desc="Kami telah merilis fitur pencarian visual baru. Coba sekarang!" data-location="-" data-date="2025-11-24" data-contact="-" data-verified="false">
+                <span class="notification-icon"><i class="fas fa-bell"></i></span>
+                <div class="notification-content">
+                    <h4>Pembaruan Sistem</h4>
+                    <p>Kami telah merilis fitur pencarian visual baru. Coba sekarang!</p>
+                    <span class="notification-time">3 Hari Lalu</span>
+                </div>
+                <div class="notification-controls">
+                    <span class="notification-status status-read">DIBACA</span>
+                    <button class="detail-btn" aria-expanded="false">Rincian</button>
+                </div>
+            </li>
+            
+        </ul>
+        
+        <!-- Detail Modal -->
+        <div id="detailModal" class="overlay-modal" role="dialog" aria-hidden="true">
+            <div class="modal-panel" role="document">
+                <div class="modal-body">
+                    <div class="modal-left">
+                        <img id="modalImage" class="modal-image" src="https://placehold.co/600x400/ddd/777?text=Foto+Barang" alt="Foto Barang">
+                    </div>
+                    <div class="modal-right">
+                        <h3 id="modalTitle">Judul Barang</h3>
+                        <div class="modal-meta">
+                            <div class="chip" id="modalLocation">Lokasi: -</div>
+                            <div class="chip" id="modalDate">Tanggal: -</div>
+                            <div class="chip" id="modalContact">Kontak: -</div>
+                        </div>
+                        <p id="modalDesc">Deskripsi singkat akan muncul di sini.</p>
+
+                        <div class="modal-actions">
+                            <button id="modalSend" class="btn-primary">Kirim Data</button>
+                            <button id="modalCancel" class="btn-secondary">Batal</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+<script>
+    // Dapatkan semua item notifikasi (<li>) dengan class .notification-item
+    const notificationItems = document.querySelectorAll('.notification-item');
+
+    // Loop melalui setiap item notifikasi untuk menambahkan event listener
+    notificationItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Dapatkan elemen status di dalam item yang diklik
+            const statusElement = item.querySelector('.notification-status');
+
+            // Cek apakah item saat ini memiliki class 'unread'
+            if (item.classList.contains('unread')) {
+                // >>> Jika statusnya BELUM DIBACA, ubah menjadi DIBACA
+                
+                // 1. Hapus class 'unread' dari item utama
+                item.classList.remove('unread'); 
+                
+                // 2. Update teks dan class status
+                statusElement.textContent = 'DIBACA';
+                statusElement.classList.remove('status-unread');
+                statusElement.classList.add('status-read');
+                
+            } else {
+                // >>> Jika statusnya DIBACA, ubah menjadi BELUM DIBACA
+                
+                // 1. Tambahkan class 'unread' ke item utama
+                item.classList.add('unread');
+                
+                // 2. Update teks dan class status
+                statusElement.textContent = 'BELUM DIBACA';
+                statusElement.classList.remove('status-read');
+                statusElement.classList.add('status-unread');
+            }
+        });
+    });
+    
+    // Detail modal logic
+    const detailButtons = document.querySelectorAll('.detail-btn');
+    const detailModal = document.getElementById('detailModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+    const modalLocation = document.getElementById('modalLocation');
+    const modalDate = document.getElementById('modalDate');
+    const modalContact = document.getElementById('modalContact');
+    const modalImage = document.getElementById('modalImage');
+    const modalSend = document.getElementById('modalSend');
+    const modalCancel = document.getElementById('modalCancel');
+
+    let activeNotification = null;
+
+    detailButtons.forEach(btn => {
+        btn.addEventListener('click', (e)=>{
+            e.stopPropagation(); // prevent toggling read/unread
+            const li = btn.closest('.notification-item');
+            if(!li) return;
+            activeNotification = li;
+            // populate modal from data-* attributes
+            const title = li.dataset.title || '';
+            const desc = li.dataset.desc || '';
+            const location = li.dataset.location || '-';
+            const date = li.dataset.date || '-';
+            const contact = li.dataset.contact || '-';
+            const verified = li.dataset.verified === 'true';
+
+            modalTitle.textContent = title;
+            modalDesc.textContent = desc;
+            modalLocation.textContent = 'Lokasi: ' + location;
+            modalDate.textContent = 'Tanggal: ' + date;
+            modalContact.textContent = 'Kontak: ' + contact;
+            // image remains placeholder (no image provided)
+
+            // mark as read when opened
+            if(li.classList.contains('unread')){
+                li.classList.remove('unread');
+                const statusEl = li.querySelector('.notification-status');
+                if(statusEl){ statusEl.textContent = 'DIBACA'; statusEl.classList.remove('status-unread'); statusEl.classList.add('status-read'); }
+            }
+
+            // store verified flag on send button
+            modalSend.dataset.verified = verified ? 'true' : 'false';
+
+            detailModal.classList.add('active');
+            detailModal.setAttribute('aria-hidden','false');
+        });
+    });
+
+    // Send action
+    modalSend.addEventListener('click', ()=>{
+        const verified = modalSend.dataset.verified === 'true';
+        if(verified){
+            const ok = confirm('Barang sudah diverifikasi — nomor HP pelapor akan dikirim. Lanjutkan?');
+            if(!ok) return;
+        }
+        // simulate send
+        alert('Kirim data berhasil. ' + (verified ? 'Nomor HP pelapor telah dikirim.' : 'Data dikirim.'));
+        closeDetailModal();
+    });
+
+    modalCancel.addEventListener('click', closeDetailModal);
+
+    // Close modal when clicking outside panel
+    detailModal.addEventListener('click', (e)=>{ if(e.target === detailModal) closeDetailModal(); });
+
+    function closeDetailModal(){
+        detailModal.classList.remove('active');
+        detailModal.setAttribute('aria-hidden','true');
+        activeNotification = null;
+    }
+</script>
+
+</script>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-logo">TEMUCEPAT</div>
+            <div class="footer-links">
+                <a href="login awal.html">Beranda</a>
+                <a href="laporkanbarang.html">Laporkan Barang</a>
+                <a href="halaman login 1.html">Login</a>
+            </div>
+            <div>© 2025 TEMUCEPAT — Semua hak dilindungi.</div>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Barang (Sesuai Gambar)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="assets/styles.css">
+    
+    <style>
+        :root {
+            --primary-blue: #98befb; /* Biru terang untuk aksen */
+            --light-blue-bg: #e0f2f7; /* Latar belakang biru sangat muda */
+            --card-bg: rgba(255, 255, 255, 0.9); /* Latar kartu semi-transparan */
+            --text-dark: #333;
+            --text-gray: #020202;
+            --border-light: #ddd;
+            --button-blue: #98befb;
+            --button-blue-hover: #98befb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        h1 {
+            color: var(--text-dark);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2em;
+            font-weight: 700;
+        }
+        
+        /* Gaya untuk Status Barang (Ditemukan/Hilang) */
+        .status-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            background-color: #f0f0f0;
+            border-radius: 25px;
+            padding: 5px;
+        }
+
+        .status-toggle button {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            background-color: transparent;
+            color: var(--text-gray);
+            font-weight: 600;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .status-toggle button.active {
+            background-color: var(--primary-blue);
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .form-row label {
+            flex: 0 0 150px; /* Lebar label tetap */
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95em;
+        }
+
+        .form-row .input-group {
+            flex: 1;
+            position: relative;
+        }
+
+        input[type="text"],
+        textarea,
+        select, /* Tambahkan gaya untuk elemen select */
+        .file-upload-wrapper {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            font-size: 0.95em;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background-color: white; /* Pastikan latar input putih */
+        }
+        
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus { /* Tambahkan focus style untuk select */
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 2px rgba(47, 44, 222, 0.2);
+            outline: none;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Gaya Khusus untuk Unggah Foto */
+        .file-upload-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: white;
+            cursor: pointer;
+            padding: 8px 12px;
+        }
+        
+        .file-upload-wrapper input[type="file"] {
+            display: none; /* Sembunyikan input file asli */
+        }
+
+        .file-upload-wrapper .file-name {
+            color: var(--text-gray);
+            flex-grow: 1;
+            padding-right: 10px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .file-upload-button {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .file-upload-button:hover {
+            background-color: var(--button-blue-hover);
+        }
+
+        /* Preview area untuk gambar */
+        .photo-preview-area {
+            width: 150px;
+            height: 100px;
+            border: 2px dashed var(--border-light);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+            overflow: hidden;
+            background-color: #f9f9f9;
+        }
+
+        .photo-preview-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none; /* Sembunyikan secara default */
+        }
+        
+        /* Tombol Kirim */
+        button[type="submit"] {
+            background: var(--button-blue);
+            padding: 15px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            width: 100%;
+            transition: background-color 0.3s;
+            margin-top: 10px; /* Sedikit jarak dari atas */
+            color: rgb(37, 34, 34);
+        }
+
+        button[type="submit"]:hover {
+            background-color: var(--button-blue-hover);
+        }
+    </style>
+</head>
+<body>
+   
+
+    <div class="container">
+        <h1>Daftarkan Barang</h1>
+        
+        <div class="status-toggle">
+            <button class="active" id="btnDitemukan">Ditemukan</button>
+            <button id="btnHilang">Hilang</button>
+        </div>
+
+        <form id="barangForm">
+            <div class="form-row">
+                <label for="itemName">Nama Barang</label>
+                <div class="input-group">
+                    <input type="text" id="itemName" placeholder="Contoh: Dompet Kulit Coklat" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <label for="itemType">Jenis Barang</label>
+                <div class="input-group">
+                    <select id="itemType" required>
+                        <option value="">-- Pilih Jenis Barang --</option>
+                        <option value="Dompet">Dompet</option>
+                        <option value="HP">HP/Gawai</option>
+                        <option value="Kunci">Kunci (Motor, Mobil, Rumah)</option>
+                        <option value="Jam">Jam Tangan</option>
+                        <option value="Tas">Tas/Ransel</option>
+                        <option value="Pakaian">Pakaian/Aksesoris</option>
+                        <option value="Dokumen">Dokumen (KTP, SIM, dll.)</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <label for="itemDescription">Ciri-ciri & Detail</label>
+                <div class="input-group">
+                    <textarea id="itemDescription" placeholder="Deskripsi dan Tanggal Ditemukan" required></textarea>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <label for="itemPhoto">Unggah Foto Barang</label>
+                <div class="input-group">
+                    <div class="file-upload-wrapper">
+                        <span class="file-name" id="fileName">Pilih File...</span>
+                        <input type="file" id="itemPhoto" accept="image/*">
+                        <label for="itemPhoto" class="file-upload-button">Choose File</label>
+                    </div>
+                    <div class="photo-preview-area">
+                        <img id="photoPreview" src="" alt="Pratinjau Foto">
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" id="submitBtn">Kirim Data Ditemukan</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnDitemukan = document.getElementById('btnDitemukan');
+            const btnHilang = document.getElementById('btnHilang');
+            const submitBtn = document.getElementById('submitBtn');
+            const itemPhotoInput = document.getElementById('itemPhoto');
+            const fileNameSpan = document.getElementById('fileName');
+            const photoPreview = document.getElementById('photoPreview');
+            let currentStatus = 'Ditemukan'; // Default status
+
+            // Handle status toggle buttons
+            btnDitemukan.addEventListener('click', () => {
+                btnDitemukan.classList.add('active');
+                btnHilang.classList.remove('active');
+                currentStatus = 'Ditemukan';
+                submitBtn.textContent = 'Kirim Data Ditemukan';
+            });
+
+            btnHilang.addEventListener('click', () => {
+                btnHilang.classList.add('active');
+                btnDitemukan.classList.remove('active');
+                currentStatus = 'Hilang';
+                submitBtn.textContent = 'Kirim Data Kehilangan';
+            });
+
+            // Handle file input change for displaying file name and preview
+            itemPhotoInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    fileNameSpan.textContent = file.name;
+                    photoPreview.src = URL.createObjectURL(file);
+                    photoPreview.style.display = 'block';
+                } else {
+                    fileNameSpan.textContent = 'Pilih File...';
+                    photoPreview.src = '';
+                    photoPreview.style.display = 'none';
+                }
+            });
+
+            // Form submission (contoh sederhana, tanpa Firebase)
+            const barangForm = document.getElementById('barangForm');
+            barangForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                
+                // Mendapatkan nilai Jenis Barang
+                const selectedItemType = document.getElementById('itemType').value;
+
+                if (!selectedItemType) {
+                    alert('Mohon pilih Jenis Barang terlebih dahulu!');
+                    return; // Mencegah form submit jika Jenis Barang belum dipilih
+                }
+
+                alert(`${currentStatus === 'Ditemukan' ? 'Data Barang Ditemukan' : 'Data Barang Kehilangan'} berhasil dikirim untuk barang jenis: ${selectedItemType}! (Simulasi)`);
+                
+                // Reset formulir setelah simulasi kirim
+                barangForm.reset();
+                fileNameSpan.textContent = 'Pilih File...';
+                photoPreview.src = '';
+                photoPreview.style.display = 'none';
+                btnDitemukan.classList.add('active');
+                btnHilang.classList.remove('active');
+                currentStatus = 'Ditemukan';
+                submitBtn.textContent = 'Kirim Data Ditemukan';
+            });
+        });
+    </script>
+</body>
+</html>

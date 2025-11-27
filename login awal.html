@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEMUCEPAT - Penemuan Barang</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="https://via.placeholder.com/32" type="image/png"> 
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="assets/styles.css">
+
+    <style>
+        /* CSS Diletakkan di Sini */
+
+        :root {
+            /* Warna yang Dimodifikasi */
+            --primary-color: #2a6a8c; 
+            --secondary-color: #98befb; 
+            --text-color-light: #ffffff;
+            --text-color-dark: #333333;
+            --bg-overlay: rgba(0, 0, 0, 0.3); 
+            
+            /* -- Warna Baru untuk Footer (Abu-abu Gelap Konsisten) -- */
+            --footer-bg-color: #282C34; 
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color-light);
+            overflow-x: hidden;
+            /* Default body background, tapi konten di bawah hero akan menimpanya */
+            background-color: #ffffff; 
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0 5%;
+            box-sizing: border-box;
+            /* Anda harus menambahkan gambar latar belakang di sini, misalnya: */
+            /* background: url('url-gambar-anda.jpg') no-repeat center center/cover; */
+        }
+
+        /* Overlay untuk memastikan teks mudah dibaca */
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-overlay);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 600px;
+            text-align: left;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5em;
+            margin-bottom: 0.2em;
+            line-height: 1.2;
+            font-weight: 700;
+        }
+
+        .hero-content p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 1.5em;
+            font-weight: 400;
+        }
+
+        .trust-badge {
+            background-color: rgba(36, 32, 32, 0.15);
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 0.9em;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 1.5em;
+            backdrop-filter: blur(5px);
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0; /* Diperbaiki: left seharusnya 0 */
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+
+        .navbar .logo {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--text-color-light);
+        }
+
+        .nav-links a, .social-icons a {
+            color: var(--text-color-light);
+            text-decoration: none;
+            margin-left: 30px;
+            font-weight: 600;
+            font-size: 1.0em;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        /* --- Ikon dan Lonceng --- */
+        .icon-group {
+            display: flex;
+            align-items: center;
+        }
+        
+        .notification-icon {
+            position: relative;
+            margin-right: 25px; 
+        }
+
+        .notification-icon a {
+            color: var(--text-color-light);
+            font-size: 1.2em;
+            transition: color 0.3s ease;
+            text-decoration: none;
+        }
+
+        .notification-icon a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .social-icons img {
+            width: 20px;
+            height: 20px;
+            filter: invert(100%);
+            vertical-align: middle;
+        }
+
+        .social-icons a {
+            margin-left: 20px;
+        }
+
+        /* --- Button --- */
+        .btn {
+            background-color: var(--secondary-color);
+            color: var(--text-color-light);
+            padding: 12px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background-color: #98befb;
+            transform: translateY(-2px);
+        }
+
+        /* --- Bagian Konten Utama (di antara Hero dan Footer) --- */
+        /* Kode tambahan untuk menyatukan warna */
+        .main-content {
+            background-color: var(--footer-bg-color); /* Menggunakan warna footer yang sama */
+            color: var(--text-color-light);
+            padding: 50px 5%; /* Contoh padding */
+            text-align: center;
+            /* Pastikan elemen ini menempel ke footer tanpa batas */
+        }
+        
+        /* --- Footer --- */
+        .site-footer {
+            background-color: var(--footer-bg-color); /* Menggunakan warna yang sama */
+            color: var(--text-color-light);
+            padding: 30px 5%; 
+            font-size: 0.9em;
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-weight: 700;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: var(--text-color-light);
+            text-decoration: none;
+            margin: 0 15px;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+            font-weight: 400;
+            display: inline-block; /* Agar margin bekerja dengan baik */
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+        }
+
+        /* --- Responsive adjustments --- */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-wrap: wrap;
+                justify-content: center;
+                padding: 15px 3%;
+            }
+
+            .navbar .logo {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 15px;
+            }
+
+            .nav-links, .icon-group {
+                width: 100%;
+                text-align: center;
+                margin-top: 10px;
+                justify-content: center;
+            }
+
+            .nav-links a {
+                margin: 0 10px;
+            }
+
+            .icon-group a {
+                margin: 0 5px;
+            }
+            
+            .notification-icon {
+                margin-right: 15px;
+            }
+
+
+            .hero-content {
+                max-width: 90%;
+                text-align: center;
+                margin: auto;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5em;
+            }
+
+            .hero-content p {
+                font-size: 1em;
+            }
+
+            .hero {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">TEMUCEPAT</div>
+        <nav class="nav-links">
+            </nav>
+        <div class="icon-group">
+            <div class="notification-icon">
+                <a href="notifikasi.html" title="Notifikasi">
+                    <i class="fas fa-bell"></i>
+                </a>
+            </div>
+            
+            <div class="social-icons">
+                <a href="halaman login 1.html" class="btn">Login</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <div class="trust-badge">
+                    TEMUKAN BARANG ANDA
+                </div>
+                <h1>Mari Temukan</h1>
+                <p>
+                    </p>
+                <a href="verifikasi_barang.html" class="btn">Mulai Penemuan Anda →</a>
+            </div>
+        </section>
+
+        <section class="main-content">
+           
+            <div class="footer-logo">TEMUCEPAT</div>
+            <div class="footer-links">
+                <a href="https://instagram.com/akun_temucepat">Instagram</a>
+                <a href="mailto:alamatemail@contoh.com">Email</a>
+                <a href="https://twitter.com/akun_temucepat">Twitter</a>
+            </div>
+            <div>© 2025 TEMUCEPAT — Semua hak dilindungi.</div>
+        </div>
+    </footer>
+    </main>
+    
+    
+</body>
+</html>
