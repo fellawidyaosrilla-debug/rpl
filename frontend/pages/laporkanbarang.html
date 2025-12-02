@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Barang (Sesuai Gambar)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/laporkanbarang.css">
+</head>
+<body>
+   
+
+    <div class="container">
+        <h1>Daftarkan Barang</h1>
+        
+        <div class="status-toggle">
+            <button class="active" id="btnDitemukan">Ditemukan</button>
+            <button id="btnHilang">Hilang</button>
+        </div>
+
+        <form id="barangForm">
+            <div class="form-row">
+                <label for="itemName">Nama Barang</label>
+                <div class="input-group">
+                    <input type="text" id="itemName" placeholder="Contoh: Dompet Kulit Coklat" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <label for="itemType">Jenis Barang</label>
+                <div class="input-group">
+                    <select id="itemType" required>
+                        <option value="">-- Pilih Jenis Barang --</option>
+                        <option value="Dompet">Dompet</option>
+                        <option value="HP">HP/Gawai</option>
+                        <option value="Kunci">Kunci (Motor, Mobil, Rumah)</option>
+                        <option value="Jam">Jam Tangan</option>
+                        <option value="Tas">Tas/Ransel</option>
+                        <option value="Pakaian">Pakaian/Aksesoris</option>
+                        <option value="Dokumen">Dokumen (KTP, SIM, dll.)</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <label for="itemDescription">Ciri-ciri & Detail</label>
+                <div class="input-group">
+                    <textarea id="itemDescription" placeholder="Deskripsi dan Tanggal Ditemukan" required></textarea>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <label for="itemPhoto">Unggah Foto Barang</label>
+                <div class="input-group">
+                    <div class="file-upload-wrapper">
+                        <span class="file-name" id="fileName">Pilih File...</span>
+                        <input type="file" id="itemPhoto" accept="image/*">
+                        <label for="itemPhoto" class="file-upload-button">Choose File</label>
+                    </div>
+                    <div class="photo-preview-area">
+                        <img id="photoPreview" src="" alt="Pratinjau Foto">
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" id="submitBtn">Kirim Data Ditemukan</button>
+        </form>
+    </div>
+</body>
+<script src="assets/js/laporkanbarang.js"></script>
+
+</html>
