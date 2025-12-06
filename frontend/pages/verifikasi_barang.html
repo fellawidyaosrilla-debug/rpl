@@ -1,445 +1,130 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Verifikasi & Detail Barang — TEMUCEPAT</title>
+// Data for items (could be fetched from server in real app)
+const items = {
+    1: { id:1, title:'Kartu BCA', desc:'Kartu debit BCA, bagian depan terdapat nama pemilik, ditemukan dekat gedung G.', image:'kartuatm.jpg', location:'Gedung G, Universitas Andalas', date:'2025-11-10', status:'Ditemukan', contact:'0812-3456-0001', category:'Dokumen' },
+    2: { id:2, title:'Helm', desc:'Helm merk XYZ warna hitam, terdapat gores kecil di bagian samping.', image:'helm.jpg', location:'Gedung G, Universitas Andalas', date:'2025-11-12', status:'Ditemukan', contact:'0812-3456-0002', category:'Kendaraan' },
+    3: { id:3, title:'Dompet Kulit', desc:'Dompet kulit coklat berisi kartu identitas dan beberapa uang tunai.', image:'dompet.jpg', location:'Gedung G, Universitas Andalas', date:'2025-11-13', status:'Hilang', contact:'0812-3456-0003', category:'Pribadi' },
+    4: { id:4, title:'HP iPhone 17', desc:'Handphone iPhone 17 warna hitam, casing retak pada pojok.', image:'hpiphone17.jpg', location:'Gedung H, Universitas Andalas', date:'2025-11-08', status:'Ditemukan', contact:'0812-3456-0004', category:'Elektronik' },
+    5: { id:5, title:'Kunci Mobil', desc:'Kunci mobil dengan remote, warna hitam, cocok untuk Toyota Avanza.', image:'kuncimobil.jpg', location:'Parkiran Utama', date:'2025-11-11', status:'Ditemukan', contact:'0812-3456-0005', category:'Kendaraan' },
+    6: { id:6, title:'Jam Tangan', desc:'Jam tangan silver dalam keadaan retak pada kaca, strap kulit.', image:'gambar jam.jpg', location:'Gedung H', date:'2025-11-09', status:'Hilang', contact:'0812-3456-0006', category:'Aksesoris' }
+};
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="assets/styles.css">
+const grid = document.getElementById('itemsGrid');
+const overlay = document.getElementById('overlay');
+const modalImage = document.getElementById('modalImage');
+const modalTitle = document.getElementById('modalTitle');
+const modalDesc = document.getElementById('modalDesc');
+const metaRow = document.getElementById('metaRow');
+const verifyBtn = document.getElementById('verifyBtn');
+const closeModal = document.getElementById('closeModal');
+const categorySelect = document.getElementById('categorySelect');
 
-    <style>
-        /* --- Custom Header (matching design) --- */
-        .custom-header {
-            background-color: #7a8a99;
-            padding: 12px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .custom-header .logo {
-            font-size: 24px;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: 1px;
-        }
-        .custom-header .right-group {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        .custom-header .icon {
-            color: #fff;
-            font-size: 20px;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .custom-header .login-btn {
-            background-color: #98befb;
-            color: #fff;
-            border: none;
-            padding: 8px 24px;
-            border-radius: 20px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 14px;
-        }
-        .custom-header .login-btn:hover {
-            background-color: #7fafeb;
-        }
 
-        /* Page-specific styles for verification/detail view */
-        .page-wrap { max-width:1200px; margin: 40px auto; padding: 0 20px; }
-        .page-title { color:#1a1a1a; margin-bottom: 8px; font-size: 36px; font-weight:700; }
-        .page-subtitle { color:#666; margin-bottom: 32px; font-size: 14px; }
-        .grid { display:grid; grid-template-columns: repeat(3,1fr); gap:24px; }
-        
-        /* Modern card design - inspired by travel/destination cards */
-        .card { 
-            background: #fff; 
-            color:#111; 
-            border-radius: 16px; 
-            overflow: hidden; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-        .card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
-        }
-        .card-image-wrapper {
-            position: relative;
-            overflow: hidden;
-            height: 240px;
-        }
-        .card img { 
-            width:100%; 
-            height: 100%;
-            object-fit: cover; 
-            display: block;
-            transition: transform 0.3s ease;
-        }
-        .card:hover img {
-            transform: scale(1.05);
-        }
-        .card-badge {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
-            color: #fff;
-            padding: 6px 14px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(255, 165, 0, 0.3);
-        }
-        .card-body { 
-            padding: 20px;
-        }
-        .card-body h3 { 
-            margin: 0 0 10px 0; 
-            font-size: 18px; 
-            font-weight: 700;
-            color: #1a1a1a;
-        }
-        .card-body p { 
-            margin: 0 0 12px 0; 
-            font-size: 13px; 
-            color: #666;
-            line-height: 1.5;
-        }
-        .card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 12px;
-            border-top: 1px solid #e5e5e5;
-        }
-        .card-location {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            color: #2f2cde;
-            font-weight: 500;
-        }
-        .card-status {
-            display: inline-block;
-            padding: 4px 10px;
-            background: #f0f0f0;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 600;
-            color: #666;
-        }
-        .card-status.found {
-            background: #dcfce7;
-            color: #166534;
-        }
-        .card-status.lost {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-        .muted { color:#666; font-size:0.85rem; margin-top:8px; }
+// --- Helper Functions ---
 
-        /* Modal overlay */
-        .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; padding:20px; z-index:2000; }
-        .overlay.active{ display:flex; }
-        .modal { width:100%; max-width:950px; background:#fff; border-radius:12px; overflow:hidden; display:flex; gap:0; max-height:85vh; }
-        .modal .left { flex:0 0 50%; min-width:0; overflow:hidden; }
-        .modal .right { flex:0 0 50%; padding:28px; box-sizing:border-box; overflow:auto; display:flex; flex-direction:column; }
-        .modal img { width:100%; height:100%; object-fit:cover; display:block; }
-        .close-btn { position:absolute; right:18px; top:14px; background:transparent; border:none; font-size:20px; cursor:pointer; color:#fff; }
+function addMeta(text){
+    const el = document.createElement('div');
+    el.className = 'meta';
+    el.textContent = text;
+    metaRow.appendChild(el);
+}
 
-        .meta-row { display:flex; gap:12px; flex-wrap:wrap; margin-top:0; }
-        .meta { background:#f3f4f6; color:#111; padding:8px 14px; border-radius:8px; font-size:13px; font-weight:500; }
+function closeDetail(){
+    overlay.classList.remove('active');
+    overlay.setAttribute('aria-hidden','true');
+    document.body.style.overflow = '';
+    modalImage.src = '';
+}
 
-        .category-filter { margin-top:24px; }
-        .category-filter label { color:#333; font-weight:700; display:block; margin-bottom:10px; }
-        .category-filter select { width:100%; padding:10px 12px; border-radius:8px; border:1px solid #ddd; font-size:13px; }
-        .related-list { margin-top:16px; display:grid; grid-template-columns:1fr; gap:12px; max-height:400px; overflow-y:auto; }
-        .related-card{ background:#f9f9f9; padding:12px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.04); cursor:pointer; display:flex; gap:12px; align-items:flex-start; border:1px solid #e8e8e8; transition:all 0.2s; }
-        .related-card:hover { background:#f0f0f0; transform:translateX(4px); }
-        .related-card img{ width:80px; height:60px; object-fit:cover; border-radius:6px; flex-shrink:0; }
-        .related-card .rc-title{ font-weight:600; font-size:13px; color:#1a1a1a; }
-        .related-card .rc-location { font-size:12px; color:#666; margin-top:4px; }
-        .intro{ color:#222020; margin-bottom:16px; }
-        .modal-actions{ margin-top:24px; display:flex; gap:12px; align-items:center; }
-        .close-modal-btn{ background:#e0e0e0; border:none; padding:12px 20px; border-radius:8px; cursor:pointer; font-weight:600; color:#333; font-size:13px; transition:all 0.2s; }
-        .close-modal-btn:hover { background:#d0d0d0; }
-
-        .verify-btn { background:#2f2cde; color:#fff; border:none; padding:12px 24px; border-radius:8px; cursor:pointer; font-weight:700; font-size:13px; transition:all 0.2s; }
-        .verify-btn:hover { background:#1f1cb8; }
-        .modal-title-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        .modal-title-row h2 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 700;
-            color: #1a1a1a;
-        }
-        .modal-status-badge {
-            display: inline-block;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            flex-shrink: 0;
-        }
-        .modal-status-badge.found {
-            background: #dcfce7;
-            color: #166534;
-        }
-        .modal-status-badge.lost {
-            background: #ef4444;
-            color: #fff;
-        }
-        .modal-status-badge.found {
-            background: #dcfce7;
-            color: #166534;
-        }
-        .modal-status-badge.lost {
-            background: #ef4444;
-            color: #fff;
-        }
-        @media (max-width:640px){ .grid{ grid-template-columns:1fr; } .page-title { font-size: 28px; } }
+function openDetail(id){
+    const item = items[id];
+    if(!item) return;
     
-        /* --- Filter Kategori --- */
-        .category-filters {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-start;
-            gap: 12px;
-            margin-bottom: 40px;
-        }
+    // Update Modal Content
+    modalImage.src = item.image;
+    modalImage.alt = item.title;
+    modalTitle.textContent = item.title;
+    modalDesc.textContent = item.desc;
+    
+    // Add status badge next to title
+    const statusDiv = document.getElementById('modalStatus');
+    statusDiv.innerHTML = '';
+    const statusBadge = document.createElement('div');
+    const statusClass = item.status === 'Hilang' ? 'lost' : 'found';
+    statusBadge.className = 'modal-status-badge ' + statusClass;
+    statusBadge.textContent = item.status;
+    statusDiv.appendChild(statusBadge);
+    
+    // Update Meta Row
+    metaRow.innerHTML = '';
+    addMeta('Lokasi: ' + item.location);
+    addMeta('Tanggal: ' + item.date);
+    addMeta('Kontak: ' + item.contact);
+    
+    verifyBtn.dataset.id = item.id;
+    
+    // Populate category filter and related items for this item
+    populateCategoryFilter(item);
+    
+    // Show Modal
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+}
 
-        .category-filters button {
-            background-color: #1b8cd2;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
+function populateCategoryFilter(currentItem){
+    categorySelect.innerHTML = '<option value="">Semua</option>';
+    const cats = new Set();
+    Object.values(items).forEach(it=>{ if(it.category) cats.add(it.category); });
+    
+    Array.from(cats).sort().forEach(cat=>{
+        const opt = document.createElement('option'); 
+        opt.value = cat; 
+        opt.textContent = cat; 
+        categorySelect.appendChild(opt);
+    });
+    
+    // render related items with current selection (default none)
+    renderRelated(categorySelect.value, currentItem.id);
+}
 
-        .category-filters button:hover {
-            background-color: #1578b8;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(27, 140, 210, 0.3);
-        }
-
-        .category-filters button.active {
-            background-color: #1578b8;
-            box-shadow: 0 4px 12px rgba(27, 140, 210, 0.3);
-        }
-
-    </style>
-</head>
-<body>
-
-<header class="custom-header" role="banner">
-    <div class="logo">TEMUCEPAT</div>
-    <div class="right-group">
-        <a class="icon" href="notifikasi.html" title="Notifikasi"><i class="fas fa-bell"></i></a>
-        <a class="login-btn" href="halaman login 1.html">Login</a>
+function renderRelated(category, excludeId){
+    const list = document.getElementById('relatedList');
+    list.innerHTML = '';
+    const arr = Object.values(items).filter(it=> (it.id != excludeId) && (!category || it.category === category));
+    
+    if(arr.length === 0){
+        const msg = document.createElement('div'); 
+        msg.style.color='#999'; msg.style.fontSize='13px'; msg.style.textAlign='center'; msg.style.padding='16px'; 
+        msg.textContent = 'Tidak ada barang terkait.'; 
+        list.appendChild(msg); 
+        return;
+    }
+    
+    arr.forEach(it=>{
+        const card = document.createElement('div'); 
+        card.className = 'related-card'; 
+        card.tabIndex = 0;
         
-    </div>
-</header>
+        card.innerHTML = `<img src="${it.image}" alt="${it.title}"><div><div class="rc-title">${it.title}</div><div class="rc-location">${it.location}</div></div>`;
+        
+        card.addEventListener('click', ()=> {
+            closeDetail(); // Tutup modal lama
+            openDetail(it.id); // Buka modal baru
+        });
+        card.addEventListener('keydown', (e)=>{ 
+            if(e.key === 'Enter') {
+                closeDetail();
+                openDetail(it.id); 
+            }
+        });
+        list.appendChild(card);
+    });
+}
 
-<main class="page-wrap">
-    <h1 class="page-title">Verifikasi</h1>
-    <p class="page-subtitle">Temukan dan verifikasi barang yang hilang atau ditemukan. Lihat detail lengkap dengan klik pada kartu.</p>
 
-     <!-- FILTER KATEGORI -->
-        <div class="category-filters">
-            <button class="active">Semua</button>
-            <button>Jam Tangan</button>
-            <button>Dompet</button>
-            <button>Perhiasan</button>
-            <button>Kunci</button>
-            <button>Uang</button>
-            <button>Kartu</button>
-            <button>Handphone</button>
-        </div>
+// --- Event Listeners Initialization ---
 
-    <section class="grid" id="itemsGrid">
-        <!-- Cards inserted by JS or you can keep these as markup -->
-        <article class="card" data-id="1" tabindex="0">
-            <div class="card-image-wrapper">
-                <img src="kartuatm.jpg" alt="Kartu BCA" loading="lazy">
-            </div>
-            <div class="card-body">
-                <h3>Kartu BCA</h3>
-                <p>Ditemukan di gedung G, Universitas Andalas</p>
-                <div class="card-footer">
-                    <span class="card-location"><i class="fas fa-map-pin"></i> Gedung G</span>
-                    <span class="card-status found">Ditemukan</span>
-                </div>
-            </div>
-        </article>
-
-        <article class="card" data-id="2" tabindex="0">
-            <div class="card-image-wrapper">
-                <img src="helm.jpg" alt="Helm" loading="lazy">
-            </div>
-            <div class="card-body">
-                <h3>Helm</h3>
-                <p>Helm merk XYZ warna hitam, terdapat gores kecil di bagian samping</p>
-                <div class="card-footer">
-                    <span class="card-location"><i class="fas fa-map-pin"></i> Gedung G</span>
-                    <span class="card-status found">Ditemukan</span>
-                </div>
-            </div>
-        </article>
-
-        <article class="card" data-id="3" tabindex="0">
-            <div class="card-image-wrapper">
-                <img src="dompet.jpg" alt="Dompet Kulit" loading="lazy">
-            </div>
-            <div class="card-body">
-                <h3>Dompet Kulit</h3>
-                <p>Dompet coklat berisi kartu identitas dan uang tunai</p>
-                <div class="card-footer">
-                    <span class="card-location"><i class="fas fa-map-pin"></i> Gedung G</span>
-                    <span class="card-status lost">Hilang</span>
-                </div>
-            </div>
-        </article>
-
-        <article class="card" data-id="4" tabindex="0">
-            <div class="card-image-wrapper">
-                <img src="hpiphone17.jpg" alt="HP iPhone 17" loading="lazy">
-            </div>
-            <div class="card-body">
-                <h3>HP iPhone 17</h3>
-                <p>Handphone iPhone 17 warna hitam, casing retak pada pojok</p>
-                <div class="card-footer">
-                    <span class="card-location"><i class="fas fa-map-pin"></i> Gedung H</span>
-                    <span class="card-status found">Ditemukan</span>
-                </div>
-            </div>
-        </article>
-
-        <article class="card" data-id="5" tabindex="0">
-            <div class="card-image-wrapper">
-                <img src="kuncimobil.jpg" alt="Kunci Mobil" loading="lazy">
-            </div>
-            <div class="card-body">
-                <h3>Kunci Mobil</h3>
-                <p>Kunci model remote, warna hitam cocok untuk Toyota Avanza</p>
-                <div class="card-footer">
-                    <span class="card-location"><i class="fas fa-map-pin"></i> Parkiran</span>
-                    <span class="card-status found">Ditemukan</span>
-                </div>
-            </div>
-        </article>
-
-        <article class="card" data-id="6" tabindex="0">
-            <div class="card-image-wrapper">
-                <img src="gambar jam.jpg" alt="Jam Tangan" loading="lazy">
-            </div>
-            <div class="card-body">
-                <h3>Jam Tangan</h3>
-                <p>Jam tangan silver dengan strap kulit, kaca retak</p>
-                <div class="card-footer">
-                    <span class="card-location"><i class="fas fa-map-pin"></i> Gedung H</span>
-                    <span class="card-status lost">Hilang</span>
-                </div>
-            </div>
-        </article>
-    </section>
-
-</main>
-
-<!-- Modal / overlay for detail -->
-<div class="overlay" id="overlay" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="modal" role="document">
-        <div class="left">
-            <img id="modalImage" src="" alt="Foto Barang">
-        </div>
-        <div class="right">
-            <div class="modal-title-row">
-                <h2 id="modalTitle">Judul Barang</h2>
-                <div id="modalStatus"></div>
-            </div>
-            <p id="modalDesc">Deskripsi lengkap barang akan muncul di sini.</p>
-
-            <div class="meta-row" id="metaRow">
-                <!-- meta chips: lokasi, tanggal, status, kontak -->
-            </div>
-                <div class="modal-actions">
-                    <button class="verify-btn" id="verifyBtn" title="Verifikasi Barang">Claim</button>
-                    <button id="closeModal" class="close-modal-btn">Tutup</button>
-                </div>
-
-                <!-- Category filter (baru): tampilkan di bawah tombol Verifikasi/Tutup -->
-                <div class="category-filter">
-                    <label for="categorySelect">Filter Kategori:</label>
-                    <select id="categorySelect">
-                        <option value="">Semua</option>
-                    </select>
-
-                    <div id="relatedList" class="related-list"></div>
-                </div>
-        </div>
-    </div>
-</div>
-
-<footer class="site-footer">
-    <div class="footer-inner">
-        <div class="footer-logo">TEMUCEPAT</div>
-        <div class="footer-links">
-            <a href="login awal.html">Beranda</a>
-            <a href="laporkanbarang.html">Laporkan Barang</a>
-            <a href="halaman login 1.html">Login</a>
-             </div>
-              <div class="footer-inner">
-             <div class="footer-links">
-            <a href="https://instagram.com/akun_temucepat">Instagram</a>
-                <a href="mailto:alamatemail@contoh.com">Email</a>
-                <a href="https://twitter.com/akun_temucepat">Twitter</a>
-        </div>
-        <div>© 2025 TEMUCEPAT — Semua hak dilindungi.</div>
-    </div>
-</footer>
-
-<script>
-    // Data for items (could be fetched from server in real app)
-    const items = {
-        1: { id:1, title:'Kartu BCA', desc:'Kartu debit BCA, bagian depan terdapat nama pemilik, ditemukan dekat gedung G.', image:'kartuatm.jpg', location:'Gedung G, Universitas Andalas', date:'2025-11-10', status:'Ditemukan', contact:'0812-3456-0001', category:'Dokumen' },
-        2: { id:2, title:'Helm', desc:'Helm merk XYZ warna hitam, terdapat gores kecil di bagian samping.', image:'helm.jpg', location:'Gedung G, Universitas Andalas', date:'2025-11-12', status:'Ditemukan', contact:'0812-3456-0002', category:'Kendaraan' },
-        3: { id:3, title:'Dompet Kulit', desc:'Dompet kulit coklat berisi kartu identitas dan beberapa uang tunai.', image:'dompet.jpg', location:'Gedung G, Universitas Andalas', date:'2025-11-13', status:'Hilang', contact:'0812-3456-0003', category:'Pribadi' },
-        4: { id:4, title:'HP iPhone 17', desc:'Handphone iPhone 17 warna hitam, casing retak pada pojok.', image:'hp.jpg', location:'Gedung H, Universitas Andalas', date:'2025-11-08', status:'Ditemukan', contact:'0812-3456-0004', category:'Elektronik' },
-        5: { id:5, title:'Kunci Mobil', desc:'Kunci mobil dengan remote, warna hitam, cocok untuk Toyota Avanza.', image:'kuncimobil.jpg', location:'Parkiran Utama', date:'2025-11-11', status:'Ditemukan', contact:'0812-3456-0005', category:'Kendaraan' },
-        6: { id:6, title:'Jam', desc:'Jam tangan silver dalam keadaan retak pada kaca, strap kulit.', image:'gambar jam.jpg', location:'Gedung H', date:'2025-11-09', status:'Hilang', contact:'0812-3456-0006', category:'Aksesoris' }
-    };
-
-    const grid = document.getElementById('itemsGrid');
-    const overlay = document.getElementById('overlay');
-    const modalImage = document.getElementById('modalImage');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalDesc = document.getElementById('modalDesc');
-    const metaRow = document.getElementById('metaRow');
-    const verifyBtn = document.getElementById('verifyBtn');
-    const closeModal = document.getElementById('closeModal');
-
+document.addEventListener('DOMContentLoaded', () => {
     // Attach click handlers to cards (delegation)
     grid.addEventListener('click', (e)=>{
         let card = e.target.closest('.card');
@@ -458,80 +143,18 @@
         }
     });
 
-    function openDetail(id){
-        const item = items[id];
-        if(!item) return;
-        modalImage.src = item.image;
-        modalImage.alt = item.title;
-        modalTitle.textContent = item.title;
-        modalDesc.textContent = item.desc;
-        
-        // Add status badge next to title
-        const statusDiv = document.getElementById('modalStatus');
-        statusDiv.innerHTML = '';
-        const statusBadge = document.createElement('div');
-        statusBadge.className = 'modal-status-badge ' + (item.status === 'Hilang' ? 'lost' : 'found');
-        statusBadge.textContent = item.status;
-        statusDiv.appendChild(statusBadge);
-        
-        metaRow.innerHTML = '';
-        addMeta('Lokasi: ' + item.location);
-        addMeta('Tanggal: ' + item.date);
-        addMeta('Kontak: ' + item.contact);
-        verifyBtn.dataset.id = item.id;
-        // populate category filter and related items for this item
-        if(typeof populateCategoryFilter === 'function') populateCategoryFilter(item);
-        overlay.classList.add('active');
-        overlay.setAttribute('aria-hidden','false');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function addMeta(text){
-        const el = document.createElement('div');
-        el.className = 'meta';
-        el.textContent = text;
-        metaRow.appendChild(el);
-    }
-
-    // Populate category filter options and related items list
-    function populateCategoryFilter(currentItem){
-        const select = document.getElementById('categorySelect');
-        select.innerHTML = '<option value="">Semua</option>';
-        const cats = new Set();
-        Object.values(items).forEach(it=>{ if(it.category) cats.add(it.category); });
-        Array.from(cats).sort().forEach(cat=>{
-            const opt = document.createElement('option'); opt.value = cat; opt.textContent = cat; select.appendChild(opt);
-        });
-        // render related items with current selection (default none)
-        renderRelated(select.value, currentItem.id);
-        select.onchange = ()=> renderRelated(select.value, currentItem.id);
-    }
-
-    function renderRelated(category, excludeId){
-        const list = document.getElementById('relatedList');
-        list.innerHTML = '';
-        const arr = Object.values(items).filter(it=> (it.id != excludeId) && (!category || it.category === category));
-        if(arr.length === 0){
-            const msg = document.createElement('div'); msg.style.color='#999'; msg.style.fontSize='13px'; msg.style.textAlign='center'; msg.style.padding='16px'; msg.textContent = 'Tidak ada barang terkait.'; list.appendChild(msg); return;
-        }
-        arr.forEach(it=>{
-            const card = document.createElement('div'); card.className = 'related-card'; card.tabIndex = 0;
-            card.innerHTML = `<img src="${it.image}" alt="${it.title}"><div><div class="rc-title">${it.title}</div><div class="rc-location">${it.location}</div></div>`;
-            card.addEventListener('click', ()=> openDetail(it.id));
-            card.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') openDetail(it.id); });
-            list.appendChild(card);
-        });
-    }
-
+    // Close Modal buttons
     closeModal.addEventListener('click', closeDetail);
     overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeDetail(); });
+    
+    // Related items filter change
+    categorySelect.onchange = (e) => {
+        const currentItemId = verifyBtn.dataset.id;
+        if (currentItemId) {
+            renderRelated(e.target.value, currentItemId);
+        }
+    };
 
-    function closeDetail(){
-        overlay.classList.remove('active');
-        overlay.setAttribute('aria-hidden','true');
-        document.body.style.overflow = '';
-        modalImage.src = '';
-    }
 
     // Example verify action (toggles status locally)
     verifyBtn.addEventListener('click', ()=>{
@@ -539,16 +162,16 @@
         if(!id) return;
         const item = items[id];
         if(!item) return;
+        
         if(item.status === 'Diverifikasi'){
             alert('Barang sudah terverifikasi');
             return;
         }
         item.status = 'Diverifikasi';
-        addMeta('Terverifikasi', new Date().toLocaleString());
+        
+        // Refresh detail view for verification status change
+        openDetail(id); 
+        
         alert(`Barang "${item.title}" ditandai sebagai Diverifikasi.`);
     });
-    
-
-</script>
-</body>
-</html>
+});
