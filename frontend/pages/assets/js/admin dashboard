@@ -1,0 +1,158 @@
+// Data Aplikasi
+const appData = {
+    activeMenu: 'Dashboard',
+    menuItems: [
+        { name: 'Dashboard', icon: 'fa-gauge-high' },
+        { name: 'Status', icon: 'fa-box' },
+    ],
+    // split Laporan into two actionable cards (Kehilangan & Ditemukan)
+    statsCards: [
+        { id: 'kehilangan', title: 'Laporan Kehilangan', value: '1.2K', change: 'Lihat laporan kehilangan', color: 'from-purple-500 to-purple-400' },
+        { id: 'ditemukan', title: 'Laporan Ditemukan', value: '1.2K', change: 'Lihat laporan ditemukan', color: 'from-blue-500 to-blue-400' }
+    ],
+    // sample reports (in real app fetched from server)
+    lostReports: [
+        { title: 'Dompet Kulit', location: 'Gedung G', date: '2025-11-13', reporter: '0812-3456-0003', status: 'Pending' },
+        { title: 'Jam Tangan', location: 'Gedung H', date: '2025-11-09', reporter: '0812-9876-0001', status: 'Diterima' }
+    ],
+    foundReports: [
+        { title: 'Kunci Mobil', location: 'Parkiran Utama', date: '2025-11-11', reporter: '0812-3456-0005', status: 'Diterima' },
+        { title: 'HP iPhone 17', location: 'Gedung H', date: '2025-11-08', reporter: '0812-3456-0004', status: 'Pending' }
+    ],
+    // tableData: [ /* Data tabel pengguna tidak digunakan di dashboard ini, tetapi bisa ditambahkan di sini */ ]
+};
+
+function setActiveMenu(menuName) {
+    appData.activeMenu = menuName;
+    if(menuName === 'Status') {
+        // Navigasi ke halaman Status
+        window.location.href = 'status admin.html';
+    } else {
+        renderSidebar();
+        renderContent();
+    }
+}
+
+function renderSidebar() {
+    const sidebarNav = document.getElementById('sidebar-nav');
+    if (!sidebarNav) return;
+
+    sidebarNav.innerHTML = appData.menuItems.map(item => `
+        <button
+            onclick="setActiveMenu('${item.name}')"
+            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-left ${
+                appData.activeMenu === item.name
+                    ? 'bg-purple-50 text-purple-600'
+                    : 'text-gray-600 hover:bg-gray-50'
+            }"
+        >
+            <i class="fas ${item.icon} w-5 text-center"></i>
+            <span class="text-sm font-medium">${item.name}</span>
+        </button>
+    `).join('');
+}
+
+function renderContent() {
+    // Render Stat Cards (2 equal columns)
+    const statsContainer = document.getElementById('stats-cards');
+    if(!statsContainer) return;
+    
+    statsContainer.innerHTML = appData.statsCards.map(card => `
+        <div onclick="window.showReports('${card.id}')" class="cursor-pointer bg-gradient-to-br ${card.color} rounded-2xl p-6 text-white shadow-lg hover:shadow-2xl transition-shadow">
+            <div class="flex items-center gap-3 mb-3">
+                <i class="fas fa-database text-xl"></i>
+                <h3 class="font-semibold">${card.title}</h3>
+            </div>
+            <p class="text-3xl font-bold mb-2">${card.value}</p>
+            <p class="text-sm opacity-90">${card.change}</p>
+        </div>
+    `).join('');
+}
+
+// Global functions (dibuat global agar bisa dipanggil dari onclick di HTML)
+
+window.showReports = function(type){
+    const panel = document.getElementById('reports-panel');
+    let list = [];
+    if(type === 'kehilangan') list = appData.lostReports;
+    if(type === 'ditemukan') list = appData.foundReports;
+    if(!list || list.length === 0){
+        panel.classList.remove('hidden');
+        panel.innerHTML = `<div class="p-6 bg-white rounded-2xl border border-gray-100">Tidak ada laporan.</div>`;
+        return;
+    }
+
+    // Build a full-width table container that matches the dashboard table style
+    panel.classList.remove('hidden');
+    panel.innerHTML = `
+        <div class="p-6 bg-white rounded-2xl border border-gray-100 shadow">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">${ type === 'kehilangan' ? 'Laporan Kehilangan' : 'Laporan Ditemukan' } Terbaru</h3>
+                <div>
+                    <button onclick="window.hideReportsPanel()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg">Kembali</button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full min-w-[700px]">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">No</th>
+                            <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Nama Barang</th>
+                            <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Lokasi</th>
+                            <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Upload</th>
+                            <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Pelapor</th>
+                            <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Status</th>
+                            <th class="text-left py-3 px-4 text-sm font-semibold text-gray-600">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${list.map((rep, idx) => `
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="py-4 px-4 text-sm text-gray-700">${idx+1}</td>
+                                <td class="py-4 px-4 text-sm text-gray-700">${rep.title}</td>
+                                <td class="py-4 px-4 text-sm text-gray-600">${rep.location}</td>
+                                <td class="py-4 px-4 text-sm text-gray-600">${rep.date}</td>
+                                <td class="py-4 px-4 text-sm text-gray-600">${rep.reporter}</td>
+                                <td class="py-4 px-4 text-sm">
+                                    <select onchange="window.updateStatus(${idx}, '${type}', this.value)" class="px-2 py-1 rounded-lg text-xs font-semibold border ${rep.status === 'Pending' ? 'bg-yellow-100 text-yellow-800 border-yellow-300' : 'bg-green-100 text-green-800 border-green-300'}">
+                                        <option value="Pending" ${rep.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                        <option value="Diterima" ${rep.status === 'Diterima' ? 'selected' : ''}>Diterima</option>
+                                    </select>
+                                </td>
+                                <td class="py-4 px-4 text-sm text-gray-600">
+                                    <button onclick="window.viewReport(${idx},'${type}')" class="px-3 py-1 bg-purple-500 text-white rounded-lg text-sm">Rincian</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+}
+
+window.hideReportsPanel = function(){
+    const panel = document.getElementById('reports-panel');
+    panel.classList.add('hidden');
+}
+
+window.updateStatus = function(index, rptType, newStatus){
+    const list = (rptType === 'kehilangan' ? appData.lostReports : appData.foundReports);
+    if(list[index]) {
+        list[index].status = newStatus;
+        // refresh the table to update colors
+        window.showReports(rptType);
+    }
+}
+
+window.viewReport = function(index, rptType){
+    const item = (rptType === 'kehilangan' ? appData.lostReports : appData.foundReports)[index];
+    if(!item) return alert('Laporan tidak ditemukan.');
+    alert(`Judul: ${item.title}\nLokasi: ${item.location}\nTanggal: ${item.date}\nPelapor: ${item.reporter}\nStatus: ${item.status}`);
+}
+
+// Initial render
+window.onload = function() {
+    renderSidebar();
+    renderContent();
+};
