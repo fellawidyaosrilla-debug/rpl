@@ -1,0 +1,232 @@
+// Data for items (bisa diambil dari server di aplikasi nyata)
+const itemsData = {
+    1: { id:1, title:'Kartu BCA', desc:'Kartu debit BCA, bagian depan terdapat nama pemilik, ditemukan dekat gedung G.', image:'kartuatm.jpg', location:'Gedung G, Universitas Andalas', date:'2025-11-10', status:'Ditemukan', contact:'0812-3456-0001', category:'Kartu' },
+    2: { id:2, title:'Helm', desc:'Helm merk XYZ warna hitam, terdapat gores kecil di bagian samping.', image:'helm.jpg', location:'Gedung G, Universitas Andalas', date:'2025-11-12', status:'Ditemukan', contact:'0812-3456-0002', category:'Lainnya' },
+    3: { id:3, title:'Dompet Kulit', desc:'Dompet kulit coklat berisi kartu identitas dan beberapa uang tunai.', image:'dompet.jpg', location:'Gedung G, Universitas Andalas', date:'2025-11-13', status:'Hilang', contact:'0812-3456-0003', category:'Dompet' },
+    4: { id:4, title:'HP iPhone 17', desc:'Handphone iPhone 17 warna hitam, casing retak pada pojok.', image:'hpiphone17.jpg', location:'Gedung H, Universitas Andalas', date:'2025-11-08', status:'Ditemukan', contact:'0812-3456-0004', category:'Handphone' },
+    5: { id:5, title:'Kunci Mobil', desc:'Kunci mobil dengan remote, warna hitam, cocok untuk Toyota Avanza.', image:'kuncimobil.jpg', location:'Parkiran Utama', date:'2025-11-11', status:'Ditemukan', contact:'0812-3456-0005', category:'Kunci' },
+    6: { id:6, title:'Jam Tangan', desc:'Jam tangan silver dalam keadaan retak pada kaca, strap kulit.', image:'gambar jam.jpg', location:'Gedung H', date:'2025-11-09', status:'Hilang', contact:'0812-3456-0006', category:'Jam Tangan' }
+};
+
+const grid = document.getElementById('itemsGrid');
+const overlay = document.getElementById('overlay');
+const modalImage = document.getElementById('modalImage');
+const modalTitle = document.getElementById('modalTitle');
+const modalDesc = document.getElementById('modalDesc');
+const modalStatusDiv = document.getElementById('modalStatus');
+const metaRow = document.getElementById('metaRow');
+const verifyBtn = document.getElementById('verifyBtn');
+const closeModal = document.getElementById('closeModal');
+const closeModalOutside = document.getElementById('closeModalOutside');
+const categorySelect = document.getElementById('categorySelect');
+const categoryFilterButtons = document.querySelectorAll('.category-filters button');
+
+// --- Render Main Grid ---
+function renderMainGrid(filterCategory = 'Semua') {
+    grid.innerHTML = '';
+    const filteredItems = Object.values(itemsData).filter(item => 
+        filterCategory === 'Semua' || item.category === filterCategory
+    );
+
+    filteredItems.forEach(item => {
+        const card = document.createElement('article');
+        const statusClass = item.status === 'Hilang' ? 'lost' : 'found';
+
+        card.className = 'card';
+        card.setAttribute('data-id', item.id);
+        card.setAttribute('tabindex', 0);
+        card.innerHTML = `
+            <div class="card-image-wrapper">
+                <img src="${item.image}" alt="${item.title}" loading="lazy">
+            </div>
+            <div class="card-body">
+                <h3>${item.title}</h3>
+                <p>${item.desc.split('. ')[0]}</p>
+                <div class="card-footer">
+                    <span class="card-location"><i class="fas fa-map-pin"></i> ${item.location.split(',')[0]}</span>
+                    <span class="card-status ${statusClass}">${item.status}</span>
+                </div>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+// --- Filter Logic ---
+categoryFilterButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        categoryFilterButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        const filter = button.getAttribute('data-filter') || 'Semua';
+        renderMainGrid(filter);
+    });
+});
+
+
+// --- Modal Functions ---
+function openDetail(id){
+    const item = itemsData[id];
+    if(!item) return;
+
+    modalImage.src = item.image;
+    modalImage.alt = item.title;
+    modalTitle.textContent = item.title;
+    modalDesc.textContent = item.desc;
+    
+    // Status Badge
+    modalStatusDiv.innerHTML = '';
+    const statusBadge = document.createElement('div');
+    let badgeClass = item.status === 'Hilang' ? 'lost' : (item.status === 'Ditemukan' ? 'found' : 'verified');
+    statusBadge.className = 'modal-status-badge ' + badgeClass;
+    statusBadge.textContent = item.status;
+    modalStatusDiv.appendChild(statusBadge);
+    
+    // Meta Row
+    metaRow.innerHTML = '';
+    addMeta('Kategori: ' + item.category);
+    addMeta('Lokasi: ' + item.location);
+    addMeta('Tanggal: ' + item.date);
+    addMeta('Kontak: ' + item.contact);
+    
+    verifyBtn.dataset.id = item.id;
+    verifyBtn.textContent = (item.status === 'Hilang' || item.status === 'Ditemukan') ? 'Verifikasi & Claim' : 'Sudah Diverifikasi';
+    verifyBtn.disabled = item.status === 'Diverifikasi';
+    
+    // Populate category filter and related items for this item
+    populateCategoryFilter(item);
+    
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+}
+
+function addMeta(text){
+    const el = document.createElement('div');
+    el.className = 'meta';
+    el.textContent = text;
+    metaRow.appendChild(el);
+}
+
+function closeDetail(){
+    overlay.classList.remove('active');
+    overlay.setAttribute('aria-hidden','true');
+    document.body.style.overflow = '';
+    modalImage.src = '';
+}
+
+
+// --- Related Items Logic ---
+function populateCategoryFilter(currentItem){
+    const select = document.getElementById('categorySelect');
+    select.innerHTML = '<option value="">Semua</option>';
+    
+    const cats = new Set();
+    Object.values(itemsData).forEach(it=>{ if(it.category) cats.add(it.category); });
+    
+    Array.from(cats).sort().forEach(cat=>{
+        const opt = document.createElement('option'); 
+        opt.value = cat; 
+        opt.textContent = cat; 
+        select.appendChild(opt);
+    });
+    
+    // Render related items with current selection (default none)
+    renderRelated(select.value, currentItem.id);
+}
+
+function renderRelated(category, excludeId){
+    const list = document.getElementById('relatedList');
+    list.innerHTML = '';
+    
+    const arr = Object.values(itemsData).filter(it => 
+        (it.id != excludeId) && (!category || it.category === category)
+    );
+    
+    if(arr.length === 0){
+        const msg = document.createElement('div'); 
+        msg.style.color='#999'; msg.style.fontSize='13px'; msg.style.textAlign='center'; msg.style.padding='16px'; 
+        msg.textContent = 'Tidak ada barang terkait.'; 
+        list.appendChild(msg); 
+        return;
+    }
+    
+    arr.forEach(it=>{
+        const card = document.createElement('div'); 
+        card.className = 'related-card'; 
+        card.tabIndex = 0;
+        
+        card.innerHTML = `<img src="${it.image}" alt="${it.title}"><div><div class="rc-title">${it.title}</div><div class="rc-location">${it.location.split(',')[0]}</div></div>`;
+        
+        card.addEventListener('click', () => {
+            // Tutup modal lama dan buka modal baru dengan detail item terkait
+            closeDetail(); 
+            openDetail(it.id);
+        });
+        card.addEventListener('keydown', (e)=>{ 
+            if(e.key === 'Enter') {
+                 closeDetail(); 
+                 openDetail(it.id);
+            }
+        });
+        list.appendChild(card);
+    });
+}
+
+
+// --- Event Listeners ---
+grid.addEventListener('click', (e)=>{
+    let card = e.target.closest('.card');
+    if(!card) return;
+    const id = card.getAttribute('data-id');
+    openDetail(id);
+});
+
+grid.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter'){
+        let card = e.target.closest('.card');
+        if(!card) return;
+        const id = card.getAttribute('data-id');
+        openDetail(id);
+    }
+});
+
+closeModal.addEventListener('click', closeDetail);
+closeModalOutside.addEventListener('click', closeDetail); // Tombol X di modal
+overlay.addEventListener('click', (e)=>{ 
+    if(e.target === overlay) closeDetail(); 
+});
+
+categorySelect.onchange = (e) => {
+    const currentItemId = verifyBtn.dataset.id;
+    if (currentItemId) {
+        renderRelated(e.target.value, currentItemId);
+    }
+};
+
+
+// Example verify action (toggles status locally)
+verifyBtn.addEventListener('click', ()=>{
+    const id = verifyBtn.dataset.id;
+    if(!id) return;
+    const item = itemsData[id];
+    if(!item) return;
+
+    if(item.status === 'Diverifikasi'){
+        alert('Barang ini sudah terverifikasi sebelumnya.');
+        return;
+    }
+    
+    item.status = 'Diverifikasi';
+    alert(`Barang "${item.title}" ditandai sebagai Diverifikasi! Selanjutnya pengguna bisa mengklaim barang tersebut.`);
+    
+    // Update modal UI
+    openDetail(item.id); 
+    // Update main grid UI
+    renderMainGrid(document.querySelector('.category-filters button.active').getAttribute('data-filter'));
+});
+
+
+// Initial render
+window.onload = function() {
+    renderMainGrid();
+};
