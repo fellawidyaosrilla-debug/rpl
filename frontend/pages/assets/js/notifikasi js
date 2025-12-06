@@ -1,0 +1,124 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const notificationItems = document.querySelectorAll('.notification-item');
+    const detailButtons = document.querySelectorAll('.detail-btn');
+    const detailModal = document.getElementById('detailModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+    const modalLocation = document.getElementById('modalLocation');
+    const modalDate = document.getElementById('modalDate');
+    const modalContact = document.getElementById('modalContact');
+    const modalSend = document.getElementById('modalSend');
+    const modalCancel = document.getElementById('modalCancel');
+    const markAllReadBtn = document.getElementById('markAllReadBtn');
+
+    let activeNotification = null;
+
+    function closeDetailModal(){
+        detailModal.classList.remove('active');
+        detailModal.setAttribute('aria-hidden','true');
+        activeNotification = null;
+    }
+
+    function toggleReadStatus(item) {
+        const statusElement = item.querySelector('.notification-status');
+        
+        if (item.classList.contains('unread')) {
+            // Mark as READ
+            item.classList.remove('unread'); 
+            statusElement.textContent = 'DIBACA';
+            statusElement.classList.remove('status-unread');
+            statusElement.classList.add('status-read');
+        } else {
+            // Mark as UNREAD
+            item.classList.add('unread');
+            statusElement.textContent = 'BELUM DIBACA';
+            statusElement.classList.remove('status-read');
+            statusElement.classList.add('status-unread');
+        }
+    }
+    
+    function markAllAsRead() {
+        notificationItems.forEach(item => {
+            if (item.classList.contains('unread')) {
+                // Hapus class 'unread' jika ada
+                item.classList.remove('unread');
+                
+                // Update status badge
+                const statusElement = item.querySelector('.notification-status');
+                if(statusElement) {
+                    statusElement.textContent = 'DIBACA';
+                    statusElement.classList.remove('status-unread');
+                    statusElement.classList.add('status-read');
+                }
+            }
+        });
+        alert('Semua notifikasi ditandai sudah dibaca.');
+    }
+
+    // --- 1. Toggle Read/Unread on Item Click ---
+    notificationItems.forEach(item => {
+        item.addEventListener('click', function() {
+            toggleReadStatus(this);
+        });
+    });
+
+    // --- 2. Open Modal on Detail Button Click ---
+    detailButtons.forEach(btn => {
+        btn.addEventListener('click', (e)=>{
+            e.stopPropagation(); // Stop click from bubbling up to the <li> item
+            const li = btn.closest('.notification-item');
+            if(!li) return;
+            activeNotification = li;
+            
+            // 1. Populate Modal
+            const title = li.dataset.title || '';
+            const desc = li.dataset.desc || '';
+            const location = li.dataset.location || '-';
+            const date = li.dataset.date || '-';
+            const contact = li.dataset.contact || '-';
+            const verified = li.dataset.verified === 'true';
+
+            modalTitle.textContent = title;
+            modalDesc.textContent = desc;
+            modalLocation.textContent = 'Lokasi: ' + location;
+            modalDate.textContent = 'Tanggal: ' + date;
+            modalContact.textContent = 'Kontak: ' + contact;
+
+            // 2. Mark as read (if unread) and update send button status
+            if(li.classList.contains('unread')){
+                toggleReadStatus(li);
+            }
+            modalSend.dataset.verified = verified ? 'true' : 'false';
+            modalSend.textContent = verified ? 'Kirim Kontak Pelapor' : 'Tutup Notifikasi';
+
+            // 3. Show Modal
+            detailModal.classList.add('active');
+            detailModal.setAttribute('aria-hidden','false');
+        });
+    });
+
+    // --- 3. Modal Actions ---
+    
+    // Close modal via Cancel button
+    modalCancel.addEventListener('click', closeDetailModal);
+
+    // Close modal when clicking outside panel
+    detailModal.addEventListener('click', (e)=>{ 
+        if(e.target === detailModal) closeDetailModal(); 
+    });
+    
+    // Send action (simulasi)
+    modalSend.addEventListener('click', ()=>{
+        const verified = modalSend.dataset.verified === 'true';
+        if(verified){
+            const ok = confirm('Barang ini sudah diverifikasi. Nomor HP pelapor akan dikirim ke Anda. Lanjutkan?');
+            if(!ok) return;
+        }
+        // simulate send
+        alert('Aksi berhasil. ' + (verified ? 'Nomor HP telah dikirim.' : 'Notifikasi ditutup.'));
+        closeDetailModal();
+    });
+    
+    // --- 4. Mark All Read Button ---
+    markAllReadBtn.addEventListener('click', markAllAsRead);
+});
