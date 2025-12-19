@@ -3,58 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TEMUCEPAT - Penemuan Barang</title>
+    <title>TEMUCEPAT - Temukan Barang Hilang Anda</title>
     
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-
-    <!-- Icon -->
-    <link rel="icon" href="https://via.placeholder.com/32" type="image/png"> 
-
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    
     <!-- External CSS -->
     <link rel="stylesheet" href="assets/css/loginawal.css">
-
 </head>
 <body>
-
     <!-- ================= NAVBAR ================= -->
-<header class="navbar">
-    <div class="nav-left">
-        <h2 class="brand">TEMUCEPAT</h2>
+    <header class="navbar">
+        <div class="nav-left">
+            <h1 class="brand">TEMU<span>CEPAT</span></h1>
+        </div>
+        <div class="nav-right">
+            <a href="#" class="login-btn">Login</a>
+        </div>
+    </header>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <div class="main-container">
+        <!-- Left side: Content -->
+        <div class="content-side">
+            <div class="content-wrapper">
+                <div class="tagline">Temukan Barang Hilang dengan Mudah</div>
+                <h1 class="main-title">Kehilangan <span>Barang Berharga</span>? Kami Siap Membantu</h1>
+                <p class="description">
+                    <span class="highlight">TemuCepat</span> adalah platform terpercaya yang menghubungkan penemu dengan pemilik barang hilang. Dengan teknologi pencarian cerdas dan komunitas yang aktif, kami membantu Anda menemukan barang berharga yang hilang dengan cepat dan efisien.
+                </p>
+                
+                <!-- CTA Button -->
+                <a href="#" class="cta-button">
+                    Ayo Temukan Barang Anda
+                    <i class="fas fa-arrow-right cta-icon"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Right side: Image Slider -->
+        <div class="slider-side">
+            <div class="slider-container">
+                <div class="slider">
+                    <!-- Slide 1 -->
+                    <div class="slider-item active">
+                        <img src="assets/img/gambar4.jpeg" alt="Dompet Hilang" class="item-image">
+                        <div class="item-description">
+                            <div class="item-title">Dompet Pink berlian</div>
+                            <div class="item-location">Ditemukan di kelas Gedung H</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Slide 2 -->
+                    <div class="slider-item">
+                        <img src="assets/img/gambar5.jpeg" alt="Smartphone Hilang" class="item-image">
+                        <div class="item-description">
+                            <div class="item-title">Dompet Hitam</div>
+                            <div class="item-location">Ditemukan di Musholla Pertanian</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Slide 3 -->
+                    <div class="slider-item">
+                        <img src="assets/img/gambar1.jpeg" alt="Kunci Mobil" class="item-image">
+                        <div class="item-description">
+                            <div class="item-title">Dompet hitam wanita</div>
+                            <div class="item-location">Ditemukan di Kantin gedung G</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Slide 4 -->
+                    <div class="slider-item">
+                        <img src="assets/img/gambar2.jpeg" alt="Tas Ransel" class="item-image">
+                        <div class="item-description">
+                            <div class="item-title">Handphone</div>
+                            <div class="item-location">Ditemukan di jalan dekat lab sentral</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Slide 5 -->
+                    <div class="slider-item">
+                        <img src="assets/img/gambar3.jpeg" alt="Jam Tangan" class="item-image">
+                        <div class="item-description">
+                            <div class="item-title">Kunci Motor</div>
+                            <div class="item-location">Ditemukan di BC lantai 2</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slider Navigation -->
+                <div class="slider-nav prev">
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="slider-nav next">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                
+                <!-- Slider Dots -->
+                <div class="slider-controls">
+                    <div class="slider-dot active" data-index="0"></div>
+                    <div class="slider-dot" data-index="1"></div>
+                    <div class="slider-dot" data-index="2"></div>
+                    <div class="slider-dot" data-index="3"></div>
+                    <div class="slider-dot" data-index="4"></div>
+                </div>
+            </div>
+        </div>
     </div>
+    
+    <!-- ================= MINIMALIST FOOTER ================= -->
+    <footer class="footer">
+        <div class="footer-social">
+            <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+        <div class="copyright">
+            &copy; 2025 TEMUCEPAT. All rights reserved.
+        </div>
+    </footer>
 
-    <div class="nav-right">
-        <a href="#" class="login-btn">Login</a>
-    </div>
-</header>
-
-
-
-    <!-- ================= HERO SECTION ================= -->
-    <main>
-    <section class="hero">
-    <div class="hero-left">
-        <h1 class="hero-title">Mari Temukan</h1>
-        <p class="hero-desc">
-            TemuCepat adalah platform pencarian cepat untuk menemukan lokasi, layanan, 
-            atau informasi penting di sekitar Anda secara instan dan akurat.
-        </p>
-    </div>
-
-    <div class="hero-right">
-        <a href="#" class="cta-search">
-            <i class="search-icon"></i>
-        </a>
-    </div>
-    </section>
-
-
-        <!-- footer removed (keeps page compact - no scrolling required) -->
-
-    </main>
-
+    <!-- External JavaScript -->
+    <script src="assets/js/loginawal.js"></script>
 </body>
 </html>

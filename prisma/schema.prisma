@@ -1,0 +1,137 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// --- ENUMS (Pilihan Status agar data konsisten) ---
+enum Role {
+  ADMIN
+  USER
+}
+
+enum JenisLaporan {
+  KEHILANGAN
+  PENEMUAN
+}
+
+enum StatusLaporan {
+  MENUNGGU_VERIFIKASI
+  DIPUBLIKASIKAN
+  DIKLAIM
+  SELESAI
+  DITOLAK
+}
+
+enum StatusKlaim {
+  PENDING
+  DISETUJUI  // Saat ini terjadi, No HP Penemu dibuka ke Pemilik
+  DITOLAK
+}
+
+// --- TABEL DATA (Sesuai Normalisasi 3NF) ---
+
+model User {
+  id_user   Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  role      Role     @default(USER)
+  created_at DateTime @default(now())
+
+  // Relasi: 1 User punya 1 data Pelapor (Profile)
+  pelapor   Pelapor?
+  
+  // Relasi: User menerima notifikasi
+  notifikasi Notifikasi[]
+}
+
+model Pelapor {
+  id_pelapor   Int     @id @default(autoincrement())
+  nama_lengkap String
+  no_hp        String  @db.VarChar(20) // Data Privacy: Dibuka hanya jika klaim disetujui
+  alamat       String? @db.Text
+  foto_profil  String?
+  
+  // Foreign Key ke User
+  id_user      Int     @unique
+  user         User    @relation(fields: [id_user], references: [id_user])
+
+  // Relasi: Pelapor bisa membuat banyak laporan (sebagai Penemu/Pelapor kehilangan)
+  laporans     Laporan[] 
+  
+  // Relasi: Pelapor bisa mengklaim barang orang lain
+  klaims       Klaim[]
+}
+
+model Kategori {
+  id_kategori   Int      @id @default(autoincrement())
+  nama_kategori String
+  
+  // Relasi: 1 Kategori punya banyak Barang
+  barangs       Barang[]
+}
+
+model Barang {
+  id_barang     Int      @id @default(autoincrement())
+  nama_barang   String
+  deskripsi     String   @db.Text
+  tgl_ditemukan DateTime
+  lokasi_detail String
+  foto_barang   String?
+  
+  // Foreign Key Kategori
+  id_kategori   Int
+  kategori      Kategori @relation(fields: [id_kategori], references: [id_kategori])
+
+  // Relasi: Barang ini milik laporan mana?
+  laporan       Laporan?
+}
+
+model Laporan {
+  id_laporan    Int           @id @default(autoincrement())
+  jenis_laporan JenisLaporan  // KEHILANGAN atau PENEMUAN
+  status        StatusLaporan @default(MENUNGGU_VERIFIKASI)
+  created_at    DateTime      @default(now())
+
+  // Foreign Key Pelapor (Siapa yang lapor?)
+  id_pelapor    Int
+  pelapor       Pelapor       @relation(fields: [id_pelapor], references: [id_pelapor])
+
+  // Foreign Key Barang (Barang apa?)
+  id_barang     Int           @unique
+  barang        Barang        @relation(fields: [id_barang], references: [id_barang])
+
+  // Relasi: Laporan ini bisa diklaim orang
+  klaims        Klaim[]
+}
+
+model Klaim {
+  id_klaim           Int         @id @default(autoincrement())
+  bukti_kepemilikan  String      @db.Text
+  status             StatusKlaim @default(PENDING)
+  created_at         DateTime    @default(now())
+
+  // Foreign Key Laporan (Klaim untuk laporan mana?)
+  id_laporan         Int
+  laporan            Laporan     @relation(fields: [id_laporan], references: [id_laporan])
+
+  // Foreign Key Pelapor (Siapa yang mengklaim? / Pemilik Asli)
+  id_pemilik_klaim   Int
+  pemilik_klaim      Pelapor     @relation(fields: [id_pemilik_klaim], references: [id_pelapor])
+}
+
+model Notifikasi {
+  id_notifikasi Int      @id @default(autoincrement())
+  pesan         String
+  is_read       Boolean  @default(false)
+  created_at    DateTime @default(now())
+
+  // Notifikasi untuk User akun yang mana?
+  id_user       Int
+  user          User     @relation(fields: [id_user], references: [id_user])
+}

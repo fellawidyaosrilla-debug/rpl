@@ -1,133 +1,468 @@
-:root{
-  --primary:#2ea8f2;      /* sky-blue */
-  --primary-dark:#1877c6; /* deeper blue for gradients */
-  --muted:#777;
-  --text-light:#FFFFFF;
-  --text-dark:#0f1720;
-  --page-gap:8%;
-  --nav-height:72px;
-  --radius:12px;
+:root {
+    --primary: #3b82f6; /* Eye-friendly blue for buttons */
+    --primary-light: #60a5fa;
+    --primary-dark: #2563eb;
+    --nav-primary: #4f46e5;
+    --nav-dark: #4338ca;
+    --text-dark: #1f2937;
+    --text-light: #6b7280;
+    --background: #ffffff;
+    --background-alt: #f9fafb;
+    --gray-light: #e5e7eb;
+    --gray-medium: #9ca3af;
+    --dark-bg: #0f172a;
+    --dark-text: #f8fafc;
+    --radius: 16px;
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+    --transition: all 0.3s ease;
 }
 
-/* base */
-html{box-sizing:border-box; height:100%;}
-*,:before,:after{box-sizing:inherit}
-/* make the whole page look like the hero: combined overlay + image fills entire viewport */
-body{
-  margin:0;
-  font-family:"Poppins",system-ui,Arial;
-  color:var(--text-dark);
-  background: linear-gradient(120deg, rgba(10,15,22,0.72), rgba(25,45,70,0.38)),
-              url("../img/latar.jpg") center/cover no-repeat;
-  min-height: 100vh;
-  height:100%;
-  overflow:hidden; /* prevent scrolling on login page */
-  /* no footer -> no extra bottom padding */
-  -webkit-font-smoothing:antialiased;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-/* navbar */
-.navbar{
-  position:fixed; top:0; left:0; right:0;
-  height:var(--nav-height);
-  display:flex; align-items:center; justify-content:space-between;
-  padding:0 calc(var(--page-gap));
-  background:rgba(255,255,255,0.04);
-  backdrop-filter:blur(6px);
-  z-index:1000;
-  box-shadow:0 6px 30px rgba(8,10,20,0.06);
-}
-.navbar .brand{
-  font-weight:700;
-  font-size:1.25rem; /* 20px */
-  color:var(--primary);
-  letter-spacing:0.4px;
-}
-.navbar .login-btn{
-  padding:8px 18px;
-  border-radius:999px;
-  border: none;
-  background: linear-gradient(180deg, var(--primary), var(--primary-dark));
-  color: var(--text-light);
-  font-weight:600;
-  transition:transform .14s ease, box-shadow .14s ease;
-}
-.navbar .login-btn:focus,
-.navbar .login-btn:hover{ transform:translateY(-2px); box-shadow:0 6px 18px rgba(10,20,40,0.08); }
-
-/* hero area */
-/* hero becomes transparent so the page background shows through uniformly */
-.hero{
-  /* occupy full viewport area between navbar and bottom */
-  height:calc(100vh - var(--nav-height));
-  margin-top:var(--nav-height);
-  padding:0 var(--page-gap);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:36px;
-  position:relative;
-  background: transparent;
-}
-/* hero no longer needs its own overlay — the global body background provides the effect */
-.hero::before{ display:none; }
-.hero-left{ max-width:55%; color:var(--text-light); z-index:1; }
-.hero-right{ position:relative; z-index:1; display:flex; align-items:center; justify-content:center; gap:20px; }
-.cta-search{
-  width:clamp(120px,16vw,200px);
-  height:clamp(120px,16vw,200px);
-  border-radius:999px;
-  background: linear-gradient(180deg, var(--primary), var(--primary-dark));
-  display:flex; align-items:center; justify-content:center;
-  border:0.5px solid rgba(255,255,255,0.18);
-  transition: transform .18s ease, filter .12s ease;
-}
-.cta-search:hover{ transform:scale(1.06); filter:brightness(1.03); }
-.search-icon{
-  width:clamp(36px,8vw,56px);
-  height:clamp(36px,8vw,56px);
-  border-radius:50%;
-  border:4px solid rgba(255,255,255,0.95);
-  position:relative;
-}
-.search-icon::after{
-  content:""; width:18px; height:3px; background:rgba(255,255,255,0.95);
-  position:absolute; right:-12px; top:calc(100% - 10px); transform:rotate(45deg); border-radius:2px;
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--text-dark);
+    background-color: var(--background);
+    line-height: 1.6;
+    overflow-x: hidden;
+    height: 100vh; /* Fixed height to prevent scrolling */
+    display: flex;
+    flex-direction: column;
 }
 
-/* footer styles restored (non-fixed) so other pages that still use footers remain styled */
-.site-footer{
-  padding:22px 0;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  color: rgba(255,255,255,0.92);
-  border-top: 1px solid rgba(255,255,255,0.03);
+h1, h2, h3, h4 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    line-height: 1.2;
 }
 
-.footer-inner{
-  display:flex; align-items:center; justify-content:space-between; gap:16px;
-  max-width:1100px; margin:0 auto; padding: 0 6%; flex-wrap:wrap;
+/* ================= NAVBAR ================= */
+.navbar {
+    position: relative; /* Changed from fixed */
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 5%;
+    background-color: rgba(255, 255, 255, 0.98);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0; /* Prevent navbar from shrinking */
 }
 
-.footer-logo, .footer-logo-title{ font-weight:700; letter-spacing:0.6px; }
-
-.footer-links{ display:flex; gap:14px; align-items:center; }
-
-.footer-social{ display:flex; gap:14px; align-items:center; }
-.footer-social img{ width:30px; opacity:0.96; filter: none; }
-
-.footer-copy{ opacity:0.9; font-size:0.9rem; color:rgba(255,255,255,0.85); }
-
-/* Responsive adjustments */
-@media (max-width:900px){
-  .hero{ flex-direction:column; text-align:center; padding-top:36px; gap:20px; height:calc(100vh - var(--nav-height)); }
-  .hero-left{ max-width:100%; }
-  .cta-search{ position:static; transform:none; margin-bottom:18px; width:clamp(86px,18vw,140px); height:clamp(86px,18vw,140px); }
+.brand {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--nav-primary);
+    letter-spacing: -0.5px;
 }
-@media (max-width:600px){
-  :root{ --page-gap:6%; }
-  .hero-title{ font-size:clamp(28px,10vw,40px); }
-  .navbar .brand{ font-size:1.05rem; }
-  .footer-social img{ width:28px; }
 
-  
+.brand span {
+    color: var(--text-dark);
+}
+
+.login-btn {
+    padding: 10px 24px;
+    border-radius: 50px;
+    background: linear-gradient(135deg, var(--nav-primary), var(--nav-dark));
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+    border: none;
+    cursor: pointer;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    background: linear-gradient(135deg, var(--nav-dark), #3730a3);
+}
+
+/* ================= MAIN CONTENT ================= */
+.main-container {
+    display: flex;
+    flex: 1; /* Take remaining space */
+    min-height: 0; /* Allow content to shrink */
+    overflow: hidden; /* Prevent internal scrolling */
+}
+
+/* Left side - Content */
+.content-side {
+    flex: 1;
+    padding: 40px 5% 20px; /* Reduced padding */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: var(--background);
+    max-width: 50%;
+    overflow-y: auto; /* Allow scrolling only if needed */
+}
+
+.content-wrapper {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.tagline {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--nav-primary);
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+}
+
+.main-title {
+    font-size: 2.8rem; /* Slightly smaller */
+    margin-bottom: 20px; /* Reduced margin */
+    color: var(--text-dark);
+    line-height: 1.1;
+}
+
+.main-title span {
+    color: var(--nav-primary);
+}
+
+.description {
+    font-size: 1.125rem;
+    color: var(--text-light);
+    margin-bottom: 30px; /* Reduced margin */
+    max-width: 90%;
+}
+
+.highlight {
+    background: linear-gradient(120deg, rgba(79, 70, 229, 0.1) 0%, rgba(79, 70, 229, 0) 100%);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* Updated Button with eye-friendly blue */
+.cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 36px; /* Slightly reduced padding */
+    border-radius: 50px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: var(--transition);
+    box-shadow: var(--shadow-md);
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-button:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+.cta-button:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: 0.5s;
+}
+
+.cta-button:hover:after {
+    left: 100%;
+}
+
+.cta-icon {
+    margin-left: 10px;
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.cta-button:hover .cta-icon {
+    transform: translateX(5px);
+}
+
+/* Right side - Image Slider */
+.slider-side {
+    flex: 1;
+    background-color: var(--background-alt);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px; /* Reduced padding */
+    max-width: 50%;
+}
+
+.slider-container {
+    width: 100%;
+    max-width: 550px; /* Slightly smaller */
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+}
+
+.slider {
+    position: relative;
+    width: 100%;
+    height: 450px; /* Reduced height */
+    overflow: hidden;
+    border-radius: var(--radius);
+}
+
+.slider-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+}
+
+.slider-item.active {
+    opacity: 1;
+}
+
+.item-image {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.item-description {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px; /* Reduced padding */
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.item-title {
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 5px;
+    font-size: 0.95rem; /* Smaller font */
+}
+
+.item-location {
+    font-size: 0.85rem; /* Smaller font */
+    color: var(--text-light);
+}
+
+.slider-controls {
+    position: absolute;
+    bottom: 15px; /* Moved up */
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    z-index: 10;
+}
+
+.slider-dot {
+    width: 8px; /* Smaller dots */
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--gray-light);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.slider-dot.active {
+    background-color: var(--nav-primary);
+    transform: scale(1.2);
+}
+
+.slider-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 42px; /* Smaller buttons */
+    height: 42px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    z-index: 10;
+    transition: var(--transition);
+}
+
+.slider-nav:hover {
+    background-color: var(--nav-primary);
+    color: white;
+}
+
+.slider-nav.prev {
+    left: 15px;
+}
+
+.slider-nav.next {
+    right: 15px;
+}
+
+/* ================= MINIMALIST FOOTER ================= */
+.footer {
+    padding: 20px 5%; /* Narrower padding */
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    flex-shrink: 0; /* Prevent footer from shrinking */
+}
+
+.footer-social {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Reduced gap */
+    margin-bottom: 15px; /* Reduced margin */
+}
+
+.social-icon {
+    width: 36px; /* Smaller icons */
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.social-icon:hover {
+    background: var(--primary); /* Use the new blue color */
+    color: white;
+    transform: translateY(-2px);
+}
+
+.copyright {
+    font-size: 0.85rem; /* Smaller font */
+    color: #94a3b8;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1100px) {
+    .main-title {
+        font-size: 2.4rem;
+    }
+    
+    .slider {
+        height: 400px;
+    }
+    
+    .slider-container {
+        max-width: 500px;
+    }
+}
+
+@media (max-width: 900px) {
+    body {
+        height: auto; /* Allow scrolling on mobile */
+        overflow-y: auto;
+    }
+    
+    .main-container {
+        flex-direction: column;
+        min-height: auto;
+    }
+    
+    .content-side, .slider-side {
+        max-width: 100%;
+    }
+    
+    .content-side {
+        padding: 40px 5% 30px;
+        overflow-y: visible;
+    }
+    
+    .slider-side {
+        padding: 0 5% 40px;
+    }
+    
+    .slider-container {
+        max-width: 600px;
+    }
+    
+    .navbar {
+        position: relative;
+    }
+}
+
+@media (max-width: 600px) {
+    .main-title {
+        font-size: 2rem;
+    }
+    
+    .description {
+        font-size: 1rem;
+    }
+    
+    .slider {
+        height: 350px;
+    }
+    
+    .slider-nav {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .cta-button {
+        padding: 14px 28px;
+        font-size: 1rem;
+    }
+    
+    .navbar {
+        height: 70px;
+        padding: 0 4%;
+    }
+    
+    .brand {
+        font-size: 1.6rem;
+    }
+    
+    .login-btn {
+        padding: 8px 20px;
+        font-size: 0.9rem;
+    }
+    
+    .footer-social {
+        gap: 12px;
+    }
+    
+    .social-icon {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .copyright {
+        font-size: 0.8rem;
+    }
 }

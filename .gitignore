@@ -1,0 +1,12 @@
+node_modules
+
+/src/generated/prisma
+
+.env
+
+!uploads/.gitkeep
+
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
