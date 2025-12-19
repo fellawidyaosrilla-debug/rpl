@@ -9,7 +9,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// --- ENUMS (Pilihan Status agar data konsisten) ---
+// --- ENUMS ---
 enum Role {
   ADMIN
   USER
@@ -28,24 +28,25 @@ enum StatusLaporan {
   DITOLAK
 }
 
+// GUNAKAN INI (Sesuai dengan kodingan Controller kita: 'DITERIMA')
 enum StatusKlaim {
   PENDING
-  DISETUJUI  // Saat ini terjadi, No HP Penemu dibuka ke Pemilik
+  DITERIMA  // Saat ini terjadi, No HP Penemu dibuka ke Pemilik
   DITOLAK
 }
 
-// --- TABEL DATA (Sesuai Normalisasi 3NF) ---
+// --- TABEL DATA ---
 
 model User {
-  id_user   Int      @id @default(autoincrement())
-  username  String   @unique
-  password  String
-  role      Role     @default(USER)
+  id_user    Int      @id @default(autoincrement())
+  username   String   @unique
+  password   String
+  role       Role     @default(USER)
   created_at DateTime @default(now())
 
   // Relasi: 1 User punya 1 data Pelapor (Profile)
-  pelapor   Pelapor?
-  
+  pelapor    Pelapor?
+   
   // Relasi: User menerima notifikasi
   notifikasi Notifikasi[]
 }
@@ -53,25 +54,25 @@ model User {
 model Pelapor {
   id_pelapor   Int     @id @default(autoincrement())
   nama_lengkap String
-  no_hp        String  @db.VarChar(20) // Data Privacy: Dibuka hanya jika klaim disetujui
+  no_hp        String  @db.VarChar(20) 
   alamat       String? @db.Text
   foto_profil  String?
-  
+   
   // Foreign Key ke User
   id_user      Int     @unique
   user         User    @relation(fields: [id_user], references: [id_user])
 
-  // Relasi: Pelapor bisa membuat banyak laporan (sebagai Penemu/Pelapor kehilangan)
+  // Relasi: Daftar laporan yang dibuat
   laporans     Laporan[] 
-  
-  // Relasi: Pelapor bisa mengklaim barang orang lain
-  klaims       Klaim[]
+
+  // Relasi: Daftar klaim yang diajukan (sebagai Pemilik Asli)
+  klaim_diajukan Klaim[] @relation("KlaimUser")
 }
 
 model Kategori {
   id_kategori   Int      @id @default(autoincrement())
   nama_kategori String
-  
+   
   // Relasi: 1 Kategori punya banyak Barang
   barangs       Barang[]
 }
@@ -83,7 +84,7 @@ model Barang {
   tgl_ditemukan DateTime
   lokasi_detail String
   foto_barang   String?
-  
+   
   // Foreign Key Kategori
   id_kategori   Int
   kategori      Kategori @relation(fields: [id_kategori], references: [id_kategori])
@@ -111,27 +112,35 @@ model Laporan {
 }
 
 model Klaim {
-  id_klaim           Int         @id @default(autoincrement())
-  bukti_kepemilikan  String      @db.Text
-  status             StatusKlaim @default(PENDING)
-  created_at         DateTime    @default(now())
+  id_klaim          Int         @id @default(autoincrement())
+  
+  // --- KOLOM BARU ---
+  bukti_kepemilikan String      @db.Text  // Ini jadi "Deskripsi/Cerita Klaim"
+  foto_bukti        String?     // Foto bon/foto lama (Boleh kosong/Opsional)
+  tgl_hilang        DateTime?   // Tanggal user merasa kehilangan
+  // ------------------
 
-  // Foreign Key Laporan (Klaim untuk laporan mana?)
-  id_laporan         Int
-  laporan            Laporan     @relation(fields: [id_laporan], references: [id_laporan])
+  status            StatusKlaim @default(PENDING)
+  created_at        DateTime    @default(now())
 
-  // Foreign Key Pelapor (Siapa yang mengklaim? / Pemilik Asli)
-  id_pemilik_klaim   Int
-  pemilik_klaim      Pelapor     @relation(fields: [id_pemilik_klaim], references: [id_pelapor])
+  id_laporan        Int
+  laporan           Laporan     @relation(fields: [id_laporan], references: [id_laporan])
+  
+  id_pemilik_klaim  Int
+  pemilik_klaim     Pelapor     @relation("KlaimUser", fields: [id_pemilik_klaim], references: [id_pelapor]) 
 }
 
 model Notifikasi {
   id_notifikasi Int      @id @default(autoincrement())
-  pesan         String
+  judul         String
+  pesan         String   @db.Text 
   is_read       Boolean  @default(false)
   created_at    DateTime @default(now())
 
-  // Notifikasi untuk User akun yang mana?
+  // Relasi ke User (Penerima Notif)
   id_user       Int
   user          User     @relation(fields: [id_user], references: [id_user])
+
+  // Opsional: Link ke klaim
+  id_klaim      Int?
 }

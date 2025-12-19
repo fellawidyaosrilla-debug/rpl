@@ -32,6 +32,12 @@ app.get('/', (req, res) => {
 const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
 
+const laporanRoutes = require('./routes/laporanRoutes');
+app.use('/api/laporan', laporanRoutes);
+
+const klaimRoutes = require('./routes/klaimRoutes');
+app.use('/api/interaksi', klaimRoutes);
+
 // 3. 404 Handler (Pintu Terakhir)
 // Jika tidak ada route yang cocok di atas, baru masuk ke sini.
 app.use((req, res) => {
