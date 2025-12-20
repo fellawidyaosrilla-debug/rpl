@@ -1,0 +1,52 @@
+/* Custom Scrollbar for Table */
+.table-container::-webkit-scrollbar {
+    height: 8px;
+}
+.table-container::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+}
+.table-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1; 
+    border-radius: 4px;
+}
+
+/* Footer Styling */
+.site-footer {
+    background-color: #1f2937; /* Gray-900 */
+    color: white;
+    padding: 20px 0;
+    font-family: 'Poppins', sans-serif;
+    width: 100%;
+}
+
+.footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.footer-links a {
+    color: #d1d5db;
+    text-decoration: none;
+    margin-left: 20px;
+    transition: color 0.2s;
+}
+
+.footer-links a:hover { 
+    color: #ffffff; 
+}
+
+/* Responsive adjustments if needed */
+@media (max-width: 768px) {
+    .footer-inner {
+        flex-direction: column;
+        text-align: center;
+    }
+    .footer-links {
+        margin: 10px 0;
+    }
+}

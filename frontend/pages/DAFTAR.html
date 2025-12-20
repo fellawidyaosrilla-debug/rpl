@@ -1,66 +1,125 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Glassmorphism Login Page | @coding.pixel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-
-    <!-- External CSS -->
+    <title>Login & Daftar - TEMUCEPAT</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/daftar.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
-
 <body>
-    <section>
-        <img src="assets/img/latar.jpg" class="bg">
+    <!-- ================= NAVBAR SEDERHANA ================= -->
+    <header class="simple-navbar">
+        <a href="index.html" class="simple-brand">TEMU<span>CEPAT</span></a>
+    </header>
 
-        <div class="login">
-            <h2>DAFTAR</h2>
-
-            <!-- Form pendaftaran -->
-            <form action="halaman login 1.html" method="GET">
-                <div class="inputBox">
-                    <input type="text" placeholder="Username" required>
+    <!-- ================= MAIN CONTENT ================= -->
+    <div class="auth-container-simple">
+        <div class="auth-box">
+            <!-- Tab Login/Daftar -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="loginTab">Login</button>
+                <button class="auth-tab" id="registerTab">Daftar</button>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form active">
+                <div class="form-group-simple">
+                    <label for="loginPhone">
+                        <i class="fas fa-phone"></i> Nomor Handphone
+                    </label>
+                    <input type="tel" id="loginPhone" placeholder="08xxxxxxxxxx" required>
                 </div>
-
-                <div class="inputBox">
-                    <input type="password" placeholder="Password" required>
+                
+                <div class="form-group-simple">
+                    <label for="loginPassword">
+                        <i class="fas fa-lock"></i> Password
+                    </label>
+                    <input type="password" id="loginPassword" placeholder="Masukkan password" required>
                 </div>
-
-                <div class="inputBox">
-                    <input type="text" placeholder="No Handphone" required>
+                
+                <button type="submit" class="auth-submit-btn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+                
+                <div class="auth-divider-simple">
+                    <span>Atau lanjut dengan</span>
                 </div>
-
-                <div class="inputBox">
-                    <input type="submit" value="Login" id="btn">
+                
+                <div class="social-login-simple">
+                    <button type="button" class="social-btn-simple google-btn">
+                        <i class="fab fa-google"></i> Google
+                    </button>
+                    <button type="button" class="social-btn-simple facebook-btn">
+                        <i class="fab fa-facebook-f"></i> Facebook
+                    </button>
                 </div>
             </form>
-
-            <div class="group">
-                <a href="#">Forget Password</a>
-                <a href="halaman login 1.html">Login</a>
+            
+            <!-- Register Form -->
+            <form id="registerForm" class="auth-form">
+                <div class="form-group-simple">
+                    <label for="regName">
+                        <i class="fas fa-user"></i> Nama Lengkap
+                    </label>
+                    <input type="text" id="regName" placeholder="Masukkan nama lengkap" required>
+                </div>
+                
+                <div class="form-group-simple">
+                    <label for="regPhone">
+                        <i class="fas fa-phone"></i> Nomor Handphone
+                    </label>
+                    <input type="tel" id="regPhone" placeholder="08xxxxxxxxxx" required>
+                </div>
+                
+                <div class="form-group-simple">
+                    <label for="regPassword">
+                        <i class="fas fa-lock"></i> Password
+                    </label>
+                    <input type="password" id="regPassword" placeholder="Buat password (minimal 6 karakter)" required>
+                </div>
+                
+                <div class="form-group-simple checkbox-simple">
+                    <input type="checkbox" id="agreeSimple" required>
+                    <label for="agreeSimple">Saya setuju dengan Syarat & Ketentuan</label>
+                </div>
+                
+                <button type="submit" class="auth-submit-btn">
+                    <i class="fas fa-user-plus"></i> Daftar
+                </button>
+            </form>
+            
+            <div class="auth-info-simple">
+                <p><i class="fas fa-shield-alt"></i> Data Anda aman bersama kami</p>
+                <p><i class="fas fa-bolt"></i> Proses cepat dan mudah</p>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Footer -->
-    <footer class="site-footer">
-        <div class="footer-inner">
-            <div class="footer-logo">TEMUCEPAT</div>
-
-            <div class="footer-links">
-                <a href="login awal.html">Beranda</a>
-                <a href="barang.html">Barang</a>
-                <a href="laporkanbarang.html">Laporkan Barang</a>
-                <a href="halaman login 1.html">Login</a>
+    <!-- ================= FOOTER SEDERHANA ================= -->
+    <footer class="simple-footer">
+        <div class="footer-content-simple">
+            <div class="footer-brand">TEMUCEPAT</div>
+            <div class="footer-links-simple">
+                <a href="index.html">Beranda</a>
+                <a href="barang.html">Cari Barang</a>
+                <a href="laporkan.html">Laporkan</a>
             </div>
-
-            <div>© 2025 TEMUCEPAT — Semua hak dilindungi.</div>
+            <div class="footer-copyright">
+                &copy; 2025 TEMUCEPAT. Semua hak dilindungi.
+            </div>
         </div>
     </footer>
-</body>
 
+    <!-- ================= JAVASCRIPT ================= -->
+    <script src="assets/js/daftar.js"></script>
+</body>
 </html>

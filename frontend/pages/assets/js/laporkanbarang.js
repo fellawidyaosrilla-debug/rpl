@@ -1,64 +1,124 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const btnDitemukan = document.getElementById('btnDitemukan');
-    const btnHilang = document.getElementById('btnHilang');
-    const submitBtn = document.getElementById('submitBtn');
-    const itemPhotoInput = document.getElementById('itemPhoto');
-    const fileNameSpan = document.getElementById('fileName');
-    const photoPreview = document.getElementById('photoPreview');
-    let currentStatus = 'Ditemukan'; // Default status
+document.addEventListener('DOMContentLoaded', function() {
+    const API_URL = 'http://localhost:5000/api/laporan';
+    const token = localStorage.getItem('token_temucepat');
 
-    // Handle status toggle buttons
-    btnDitemukan.addEventListener('click', () => {
-        btnDitemukan.classList.add('active');
-        btnHilang.classList.remove('active');
-        currentStatus = 'Ditemukan';
-        submitBtn.textContent = 'Kirim Data Ditemukan';
-    });
+    // 1. CEK LOGIN
+    if (!token) {
+        window.location.href = 'DAFTAR.html';
+        return;
+    }
 
-    btnHilang.addEventListener('click', () => {
-        btnHilang.classList.add('active');
-        btnDitemukan.classList.remove('active');
-        currentStatus = 'Hilang';
-        submitBtn.textContent = 'Kirim Data Kehilangan';
-    });
+    // --- SELECTOR ---
+    const form = document.getElementById('laporanForm');
+    const btnFound = document.getElementById('btnFound');
+    const btnLost = document.getElementById('btnLost');
+    const inputJenis = document.getElementById('jenis_laporan');
+    const formTitle = document.getElementById('formTitle');
+    const body = document.body;
 
-    // Handle file input change for displaying file name and preview
-    itemPhotoInput.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            fileNameSpan.textContent = file.name;
-            photoPreview.src = URL.createObjectURL(file);
-            photoPreview.style.display = 'block';
+    const fileInput = document.getElementById('foto_barang');
+    const dropZone = document.getElementById('dropZone');
+    const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+    const uploadPreview = document.getElementById('uploadPreview');
+    const previewImg = document.getElementById('previewImg');
+    const removeBtn = document.getElementById('removeBtn');
+
+    // 2. LOGIKA TOGGLE WARNA & MODE
+    function setMode(mode) {
+        inputJenis.value = mode;
+        if (mode === 'PENEMUAN') {
+            btnFound.classList.add('active');
+            btnLost.classList.remove('active');
+            formTitle.textContent = 'Lapor Penemuan Barang';
+            body.classList.remove('mode-lost');
+            body.classList.add('mode-found');
         } else {
-            fileNameSpan.textContent = 'Pilih File...';
-            photoPreview.src = '';
-            photoPreview.style.display = 'none';
+            btnLost.classList.add('active');
+            btnFound.classList.remove('active');
+            formTitle.textContent = 'Lapor Kehilangan Barang';
+            body.classList.remove('mode-found');
+            body.classList.add('mode-lost');
+        }
+    }
+
+    btnFound.addEventListener('click', () => setMode('PENEMUAN'));
+    btnLost.addEventListener('click', () => setMode('KEHILANGAN'));
+
+    // 3. LOGIKA UPLOAD FOTO
+    dropZone.addEventListener('click', (e) => {
+        if (e.target !== removeBtn && !removeBtn.contains(e.target)) {
+            fileInput.click();
         }
     });
 
-    // Form submission (simulasi)
-    const barangForm = document.getElementById('barangForm');
-    barangForm.addEventListener('submit', (event) => {
-        event.preventDefault();
+    fileInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                uploadPlaceholder.style.display = 'none';
+                uploadPreview.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fileInput.value = '';
+        uploadPlaceholder.style.display = 'block';
+        uploadPreview.style.display = 'none';
+        previewImg.src = '';
+    });
+
+    // 4. KIRIM DATA
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btnSubmit = document.getElementById('submitBtn');
         
-        // Mendapatkan nilai Jenis Barang
-        const selectedItemType = document.getElementById('itemType').value;
-
-        if (!selectedItemType) {
-            alert('Mohon pilih Jenis Barang terlebih dahulu!');
-            return;
+        const formData = new FormData();
+        formData.append('jenis_laporan', inputJenis.value);
+        formData.append('nama_barang', document.getElementById('nama_barang').value);
+        formData.append('kategori', document.getElementById('kategori').value);
+        formData.append('tgl_kejadian', document.getElementById('tgl_kejadian').value);
+        formData.append('lokasi_detail', document.getElementById('lokasi').value);
+        formData.append('deskripsi', document.getElementById('deskripsi').value);
+        
+        if (fileInput.files[0]) {
+            formData.append('foto', fileInput.files[0]);
         }
 
-        alert(`${currentStatus === 'Ditemukan' ? 'Data Barang Ditemukan' : 'Data Barang Kehilangan'} berhasil dikirim untuk barang jenis: ${selectedItemType}! (Simulasi)`);
+        try {
+            btnSubmit.innerHTML = 'Memproses...';
+            btnSubmit.disabled = true;
 
-        // Reset form
-        barangForm.reset();
-        fileNameSpan.textContent = 'Pilih File...';
-        photoPreview.src = '';
-        photoPreview.style.display = 'none';
-        btnDitemukan.classList.add('active');
-        btnHilang.classList.remove('active');
-        currentStatus = 'Ditemukan';
-        submitBtn.textContent = 'Kirim Data Ditemukan';
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+
+            if (response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Laporan Anda telah terkirim.',
+                }).then(() => {
+                    window.location.href = 'beranda.html';
+                });
+            } else {
+                const res = await response.json();
+                Swal.fire('Gagal', res.message || 'Terjadi kesalahan', 'error');
+                btnSubmit.innerHTML = 'Kirim Laporan';
+                btnSubmit.disabled = false;
+            }
+        } catch (err) {
+            Swal.fire('Error', 'Server tidak merespon', 'error');
+            btnSubmit.disabled = false;
+        }
     });
+
+    // Default Date
+    document.getElementById('tgl_kejadian').valueAsDate = new Date();
 });

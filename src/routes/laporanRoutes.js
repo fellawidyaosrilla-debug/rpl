@@ -1,19 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const laporanController = require('../controllers/laporanController');
-const verifyToken = require('../middlewares/authMiddleware'); // Satpam Token
-const upload = require('../middlewares/uploadMiddleware');    // Handle Foto
+const { verifyToken } = require('../middlewares/authMiddleware');
+const upload = require('../middlewares/uploadMiddleware');
 
-// POST /api/laporan
-// Alur: Cek Token -> Upload Foto -> Jalankan Logic Controller
-router.post('/', 
-  verifyToken, 
-  upload.single('foto_barang'), // 'foto_barang' adalah nama field di Postman nanti
-  laporanController.createLaporan
-);
+// 1. Buat Laporan (POST)
+router.post('/', verifyToken, upload.single('foto'), laporanController.buatLaporan);
 
-// GET /api/laporan
-// Bisa diakses publik (tanpa token) untuk melihat beranda
+// 2. Ambil Laporan Saya (Penting: Letakkan di atas '/:id')
+router.get('/saya', verifyToken, laporanController.getLaporanSaya);
+
+// 3. Ambil Semua Laporan (GET)
 router.get('/', laporanController.getAllLaporan);
+
+// 4. Ambil Laporan by ID (GET)
+router.get('/:id', laporanController.getLaporanById);
 
 module.exports = router;

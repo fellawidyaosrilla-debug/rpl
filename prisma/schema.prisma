@@ -21,18 +21,23 @@ enum JenisLaporan {
 }
 
 enum StatusLaporan {
-  MENUNGGU_VERIFIKASI
-  DIPUBLIKASIKAN
-  DIKLAIM
-  SELESAI
+  MENUNGGU_VERIFIKASI // Default saat user baru lapor (Pending)
+  DIPUBLIKASIKAN      // Setelah Admin Klik "Setuju/Terima"
+  DIKLAIM             // Sedang ada proses klaim
+  SELESAI             // Barang sudah kembali ke pemilik
+  DITOLAK             // Admin menolak laporan (Spam/Tidak Jelas)
+}
+
+enum StatusKlaim {
+  PENDING
+  DITERIMA  // Admin/Penemu setuju, No HP dibuka
   DITOLAK
 }
 
-// GUNAKAN INI (Sesuai dengan kodingan Controller kita: 'DITERIMA')
-enum StatusKlaim {
-  PENDING
-  DITERIMA  // Saat ini terjadi, No HP Penemu dibuka ke Pemilik
-  DITOLAK
+enum TipeNotifikasi {
+  INFO
+  MATCH     // Ada barang cocok
+  CLAIM     // Update status klaim
 }
 
 // --- TABEL DATA ---
@@ -54,7 +59,7 @@ model User {
 model Pelapor {
   id_pelapor   Int     @id @default(autoincrement())
   nama_lengkap String
-  no_hp        String  @db.VarChar(20) 
+  no_hp        String  @unique @db.VarChar(20)
   alamat       String? @db.Text
   foto_profil  String?
    
@@ -65,7 +70,7 @@ model Pelapor {
   // Relasi: Daftar laporan yang dibuat
   laporans     Laporan[] 
 
-  // Relasi: Daftar klaim yang diajukan (sebagai Pemilik Asli)
+  // Relasi: Daftar klaim yang diajukan (sebagai Pemilik Asli yang mengklaim barang orang lain)
   klaim_diajukan Klaim[] @relation("KlaimUser")
 }
 
@@ -109,38 +114,48 @@ model Laporan {
 
   // Relasi: Laporan ini bisa diklaim orang
   klaims        Klaim[]
+  
+  // Relasi: Notifikasi terkait laporan ini (Opsional)
+  notifikasi    Notifikasi[]
 }
 
 model Klaim {
   id_klaim          Int         @id @default(autoincrement())
   
-  // --- KOLOM BARU ---
-  bukti_kepemilikan String      @db.Text  // Ini jadi "Deskripsi/Cerita Klaim"
-  foto_bukti        String?     // Foto bon/foto lama (Boleh kosong/Opsional)
+  // Data Pembuktian
+  bukti_kepemilikan String      @db.Text  // Deskripsi/Cerita Klaim
+  foto_bukti        String?     // Foto bon/foto lama (Opsional)
   tgl_hilang        DateTime?   // Tanggal user merasa kehilangan
-  // ------------------
 
   status            StatusKlaim @default(PENDING)
   created_at        DateTime    @default(now())
 
+  // Barang apa yang diklaim?
   id_laporan        Int
   laporan           Laporan     @relation(fields: [id_laporan], references: [id_laporan])
   
+  // Siapa yang mengklaim? (Harus punya profil pelapor)
   id_pemilik_klaim  Int
   pemilik_klaim     Pelapor     @relation("KlaimUser", fields: [id_pemilik_klaim], references: [id_pelapor]) 
 }
 
 model Notifikasi {
-  id_notifikasi Int      @id @default(autoincrement())
+  id_notifikasi Int            @id @default(autoincrement())
   judul         String
-  pesan         String   @db.Text 
-  is_read       Boolean  @default(false)
-  created_at    DateTime @default(now())
+  pesan         String         @db.Text 
+  tipe          TipeNotifikasi @default(INFO) // Agar ikon di frontend bisa beda warna
+  is_read       Boolean        @default(false)
+  created_at    DateTime       @default(now())
 
   // Relasi ke User (Penerima Notif)
   id_user       Int
-  user          User     @relation(fields: [id_user], references: [id_user])
+  user          User           @relation(fields: [id_user], references: [id_user])
 
-  // Opsional: Link ke klaim
+  // Opsional: Link ke laporan tertentu (biar pas diklik langsung buka modal barang)
+  id_laporan    Int?
+  laporan       Laporan?       @relation(fields: [id_laporan], references: [id_laporan])
+
+  // Opsional: Link ke klaim (untuk notifikasi yang berhubungan dengan klaim)
   id_klaim      Int?
+  klaim         Klaim?         @relation(fields: [id_klaim], references: [id_klaim])
 }

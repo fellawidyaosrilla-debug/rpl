@@ -1,16 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const klaimController = require('../controllers/klaimController');
-const verifyToken = require('../middlewares/authMiddleware');
+const { verifyToken } = require('../middlewares/authMiddleware'); // Wajib Login!
+const upload = require('../middlewares/uploadMiddleware');
 
-// 1. IMPORT MIDDLEWARE UPLOAD
-const upload = require('../middlewares/uploadMiddleware'); 
+// POST: Ajukan Klaim
+// Body (form-data): id_laporan, bukti_kepemilikan, tgl_hilang, foto (file)
+router.post('/', verifyToken, upload.single('foto'), klaimController.ajukanKlaim);
 
-// 2. PASANG "upload.single" DI ROUTE POST
-// Artinya: "Sebelum masuk controller, tolong urus file bernama 'foto_bukti' dulu"
-router.post('/', verifyToken, upload.single('foto_bukti'), klaimController.ajukanKlaim);
+// GET: Lihat Riwayat Klaim Saya
+router.get('/saya', verifyToken, klaimController.getKlaimSaya);
 
-router.get('/notifikasi', verifyToken, klaimController.getNotifikasiSaya);
-router.put('/verifikasi', verifyToken, klaimController.verifikasiKlaim);
-
+// GET: Klaim masuk untuk penemu (owner of the report)
+router.get('/masuk', verifyToken, klaimController.getClaimsForOwner);
 module.exports = router;

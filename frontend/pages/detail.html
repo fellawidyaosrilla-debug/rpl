@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Detail Laporan - TEMUCEPAT</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/beranda.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+  <header class="navbar">
+    <a href="beranda.html" class="brand">TEMU<span>CEPAT</span></a>
+  </header>
+
+  <main class="container" style="padding: 24px; max-width: 900px; margin: 40px auto;">
+    <div id="detailCard" class="bg-white rounded-xl shadow p-6">
+      <div id="loading">Memuat detail laporan...</div>
+
+      <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
+        <button id="backBtn" class="btn btn-secondary">&larr; Kembali</button>
+        <div style="flex:1"></div>
+      </div>
+
+      <div id="content" style="display:none;">
+        <h2 id="namaBarang" class="text-2xl font-bold mb-2"></h2>
+        <div class="mb-4 text-sm text-gray-600" id="statusBadge"></div>
+        <img id="fotoBarang" src="" alt="Foto Barang" style="width:100%; max-height:400px; object-fit:cover; border-radius:8px; margin-bottom:16px;" onerror="this.src='https://placehold.co/900x400?text=No+Image'">
+        <p id="deskripsi" class="mb-4 text-gray-700"></p>
+        <p class="text-sm text-gray-500 mb-2"><strong>Lokasi:</strong> <span id="lokasi"></span></p>
+        <p class="text-sm text-gray-500 mb-4"><strong>Tanggal kejadian:</strong> <span id="tgl"></span></p>
+        <p class="text-sm text-gray-500 mb-4"><strong>Pelapor:</strong> <span id="pelapor"></span></p>
+
+        <div id="claimSection" style="margin-top:16px;">
+          <button id="claimBtn" class="btn btn-primary">Klaim Barang Ini</button>
+
+          <!-- Inline Claim Form (hidden) -->
+          <div id="claimForm" style="display:none; margin-top:16px; border:1px solid #e5e7eb; padding:12px; border-radius:8px;">
+            <div style="display:flex; gap:8px; margin-bottom:8px;">
+              <input id="cf-bukti" class="input" placeholder="Deskripsi bukti (mis. struk)" />
+              <input id="cf-tgl" type="date" class="input" />
+            </div>
+            <div style="margin-bottom:8px; display:flex; gap:8px; align-items:center;">
+              <input id="cf-file" type="file" accept="image/*" />
+              <img id="cf-preview" src="" alt="Preview" style="max-height:80px; display:none; border-radius:6px;" />
+            </div>
+            <textarea id="cf-kronologi" class="textarea" placeholder="Kronologi kejadian (opsional)" style="width:100%; min-height:80px;"></textarea>
+            <div style="margin-top:8px; display:flex; gap:8px;">
+              <button id="cf-submit" class="btn btn-primary">Kirim Klaim</button>
+              <button id="cf-cancel" class="btn btn-secondary">Batal</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="simple-footer">
+    <div class="footer-content-simple">
+      <div class="footer-brand">TEMUCEPAT</div>
+      <div class="footer-links-simple">
+        <a href="beranda.html">Beranda</a>
+        <a href="beranda.html">Cari Barang</a>
+        <a href="laporkanbarang.html">Laporkan</a>
+      </div>
+      <div class="footer-copyright">
+        &copy; 2025 TEMUCEPAT. Semua hak dilindungi.
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/detail.js"></script>
+</body>
+</html>

@@ -1,202 +1,251 @@
-    
-  
- :root {
-    --primary-blue: #98befb;
-    --light-blue-bg: #e0f2f7;
-    --card-bg: rgba(255, 255, 255, 0.9);
-    --text-dark: #333;
-    --text-gray: #020202;
-    --border-light: #ddd;
-    --button-blue: #98befb;
-    --button-blue-hover: #98befb;
+:root {
+    /* Menggunakan variabel yang sama dengan Beranda */
+    --primary: #3b82f6;
+    --found-color: #10b981;  /* Hijau untuk Temuan */
+    --lost-color: #ef4444;   /* Merah untuk Hilang */
+    --text-dark: #1f2937;
+    --text-light: #6b7280;
+    --background: #f3f4f6;
+    --card-bg: #ffffff;
+    --border: #e5e7eb;
+    --radius: 12px;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --transition: all 0.3s ease;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
 }
 
 body {
-    background: url("../img/latar.jpg") no-repeat center center fixed;
-    background-size: cover;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--background);
+    color: var(--text-dark);
+    line-height: 1.6;
 }
 
+/* NAVBAR (Minimalis) */
+.navbar {
+    height: 70px;
+    background: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
 
-        .container {
-            background-color: var(--card-bg);
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+.brand {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-decoration: none;
+}
+.brand span { color: var(--text-dark); }
 
-        h1 {
-            color: var(--text-dark);
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 2em;
-            font-weight: 700;
-        }
-        
-        /* Gaya untuk Status Barang (Ditemukan/Hilang) */
-        .status-toggle {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-            background-color: #f0f0f0;
-            border-radius: 25px;
-            padding: 5px;
-        }
+.back-link {
+    text-decoration: none;
+    color: var(--text-light);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+}
+.back-link:hover { color: var(--primary); }
 
-        .status-toggle button {
-            flex: 1;
-            padding: 10px 15px;
-            border: none;
-            background-color: transparent;
-            color: var(--text-gray);
-            font-weight: 600;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-        }
+/* MAIN CONTENT */
+.main-container {
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+}
 
-        .status-toggle button.active {
-            background-color: var(--primary-blue);
-            color: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
+.form-card {
+    background: var(--card-bg);
+    width: 100%;
+    max-width: 700px;
+    padding: 40px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
 
-        .form-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+.form-header { text-align: center; margin-bottom: 30px; }
+.form-header h1 { font-family: 'Poppins', sans-serif; color: var(--text-dark); margin-bottom: 5px; }
+.form-header p { color: var(--text-light); font-size: 0.95rem; }
 
-        .form-row label {
-            flex: 0 0 150px; /* Lebar label tetap */
-            font-weight: 600;
-            color: var(--text-dark);
-            font-size: 0.95em;
-        }
+/* TOGGLE SWITCH */
+.status-toggle-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
 
-        .form-row .input-group {
-            flex: 1;
-            position: relative;
-        }
+.status-toggle {
+    background: #f1f5f9;
+    padding: 5px;
+    border-radius: 50px;
+    display: flex;
+    gap: 5px;
+}
 
-        input[type="text"],
-        textarea,
-        select, /* Tambahkan gaya untuk elemen select */
-        .file-upload-wrapper {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            font-size: 0.95em;
-            transition: border-color 0.3s, box-shadow 0.3s;
-            background-color: white; /* Pastikan latar input putih */
-        }
-        
-        input[type="text"]:focus,
-        textarea:focus,
-        select:focus { /* Tambahkan focus style untuk select */
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 2px rgba(47, 44, 222, 0.2);
-            outline: none;
-        }
+.toggle-btn {
+    padding: 10px 25px;
+    border: none;
+    background: transparent;
+    border-radius: 50px;
+    font-weight: 600;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Inter', sans-serif;
+}
 
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
+/* Status Active States */
+/* Jika mode Penemuan (Default) */
+.toggle-btn.active[data-type="PENEMUAN"] {
+    background-color: white;
+    color: var(--found-color);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
 
-        /* Gaya Khusus untuk Unggah Foto */
-        .file-upload-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: white;
-            cursor: pointer;
-            padding: 8px 12px;
-        }
-        
-        .file-upload-wrapper input[type="file"] {
-            display: none; /* Sembunyikan input file asli */
-        }
+/* Jika mode Kehilangan */
+.toggle-btn.active[data-type="KEHILANGAN"] {
+    background-color: white;
+    color: var(--lost-color);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
 
-        .file-upload-wrapper .file-name {
-            color: var(--text-gray);
-            flex-grow: 1;
-            padding-right: 10px;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-        }
+/* FORM ELEMENTS */
+.form-group { margin-bottom: 20px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
-        .file-upload-button {
-            background-color: var(--primary-blue);
-            color: white;
-            padding: 8px 15px;
-            border-radius: 6px;
-            font-size: 0.9em;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
+label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text-dark);
+    font-size: 0.95rem;
+}
 
-        .file-upload-button:hover {
-            background-color: var(--button-blue-hover);
-        }
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
 
-        /* Preview area untuk gambar */
-        .photo-preview-area {
-            width: 150px;
-            height: 100px;
-            border: 2px dashed var(--border-light);
-            border-radius: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 10px;
-            overflow: hidden;
-            background-color: #f9f9f9;
-        }
+.input-icon {
+    position: absolute;
+    left: 15px;
+    color: var(--text-light);
+}
 
-        .photo-preview-area img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: none; /* Sembunyikan secara default */
-        }
-        
-        /* Tombol Kirim */
-        button[type="submit"] {
-            background: var(--button-blue);
-            padding: 15px 25px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.1em;
-            font-weight: 600;
-            width: 100%;
-            transition: background-color 0.3s;
-            margin-top: 10px; /* Sedikit jarak dari atas */
-            color: rgb(37, 34, 34);
-        }
+input[type="text"], input[type="date"], select, textarea {
+    width: 100%;
+    padding: 12px 15px 12px 45px; /* Space for icon */
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    transition: var(--transition);
+    outline: none;
+}
+input[type="date"] { padding-left: 15px; } /* Date doesn't have icon */
+select { padding-left: 45px; appearance: none; cursor: pointer; background: white; }
+textarea { padding: 15px; height: 120px; resize: vertical; }
 
-        button[type="submit"]:hover {
-            background-color: var(--button-blue-hover);
-        }
+input:focus, select:focus, textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
 
+/* FILE UPLOAD (Drag & Drop Look) */
+.file-upload-container {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    background-color: #fafafa;
+    position: relative;
+}
+
+.file-upload-container:hover {
+    border-color: var(--primary);
+    background-color: #f0f9ff;
+}
+
+.upload-icon { font-size: 2rem; color: var(--text-light); margin-bottom: 10px; }
+.file-support { display: block; font-size: 0.8rem; color: var(--text-light); margin-top: 5px; }
+
+/* Image Preview */
+.upload-preview {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.upload-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.remove-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* SUBMIT BUTTON */
+.submit-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-top: 10px;
+    
+    /* Default Green (Penemuan) */
+    background: linear-gradient(135deg, #10b981, #059669); 
+}
+
+.submit-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+
+/* VARIANT RED (KEHILANGAN) */
+body.mode-lost .submit-btn {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+body.mode-lost .submit-btn:hover { box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+
+/* Responsive */
+@media (max-width: 600px) {
+    .form-card { padding: 20px; }
+    .form-row { grid-template-columns: 1fr; gap: 0; }
+}

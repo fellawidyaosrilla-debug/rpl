@@ -1,73 +1,129 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Barang (Sesuai Gambar)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Lapor Barang - TEMUCEPAT</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/laporkanbarang.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body>
-   
-
-    <div class="container">
-        <h1>Daftarkan Barang</h1>
-        
-        <div class="status-toggle">
-            <button class="active" id="btnDitemukan">Ditemukan</button>
-            <button id="btnHilang">Hilang</button>
+<body class="mode-found"> <header class="navbar">
+        <a href="beranda.html" class="brand">TEMU<span>CEPAT</span></a>
+        <div class="nav-right">
+            <a href="beranda.html" class="back-link">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </a>
         </div>
+    </header>
 
-        <form id="barangForm">
-            <div class="form-row">
-                <label for="itemName">Nama Barang</label>
-                <div class="input-group">
-                    <input type="text" id="itemName" placeholder="Contoh: Dompet Kulit Coklat" required>
+    <div class="main-container">
+        <div class="form-card">
+            <div class="form-header">
+                <h1 id="formTitle">Lapor Penemuan Barang</h1>
+                <p>Isi formulir di bawah ini dengan detail yang akurat.</p>
+            </div>
+
+            <div class="status-toggle-container">
+                <div class="status-toggle">
+                    <button type="button" class="toggle-btn active" id="btnFound" data-type="PENEMUAN">
+                        <i class="fas fa-check-circle"></i> Saya Menemukan
+                    </button>
+                    <button type="button" class="toggle-btn" id="btnLost" data-type="KEHILANGAN">
+                        <i class="fas fa-search"></i> Saya Kehilangan
+                    </button>
                 </div>
             </div>
-            
-            <div class="form-row">
-                <label for="itemType">Jenis Barang</label>
-                <div class="input-group">
-                    <select id="itemType" required>
-                        <option value="">-- Pilih Jenis Barang --</option>
-                        <option value="Dompet">Dompet</option>
-                        <option value="HP">HP/Gawai</option>
-                        <option value="Kunci">Kunci (Motor, Mobil, Rumah)</option>
-                        <option value="Jam">Jam Tangan</option>
-                        <option value="Tas">Tas/Ransel</option>
-                        <option value="Pakaian">Pakaian/Aksesoris</option>
-                        <option value="Dokumen">Dokumen (KTP, SIM, dll.)</option>
-                        <option value="Lainnya">Lainnya</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-row">
-                <label for="itemDescription">Ciri-ciri & Detail</label>
-                <div class="input-group">
-                    <textarea id="itemDescription" placeholder="Deskripsi dan Tanggal Ditemukan" required></textarea>
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <label for="itemPhoto">Unggah Foto Barang</label>
-                <div class="input-group">
-                    <div class="file-upload-wrapper">
-                        <span class="file-name" id="fileName">Pilih File...</span>
-                        <input type="file" id="itemPhoto" accept="image/*">
-                        <label for="itemPhoto" class="file-upload-button">Choose File</label>
-                    </div>
-                    <div class="photo-preview-area">
-                        <img id="photoPreview" src="" alt="Pratinjau Foto">
+
+            <form id="laporanForm">
+                <input type="hidden" id="jenis_laporan" name="jenis_laporan" value="PENEMUAN">
+
+                <div class="form-group">
+                    <label for="nama_barang">Nama Barang</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-tag input-icon"></i>
+                        <input type="text" id="nama_barang" placeholder="Contoh: Dompet Kulit Coklat" required>
                     </div>
                 </div>
-            </div>
-            
-            <button type="submit" id="submitBtn">Kirim Data Ditemukan</button>
-        </form>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="kategori">Kategori</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-list input-icon"></i>
+                            <select id="kategori" required>
+                                <option value="">Pilih Kategori</option>
+                                <option value="Elektronik">Elektronik</option>
+                                <option value="Dompet & Tas">Dompet & Tas</option>
+                                <option value="Kunci">Kunci</option>
+                                <option value="Dokumen">Dokumen</option>
+                                <option value="Pakaian">Pakaian</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="tgl_kejadian">Tanggal Kejadian</label>
+                        <div class="input-wrapper">
+                            <input type="date" id="tgl_kejadian" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="lokasi">Lokasi Detail</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-map-marker-alt input-icon"></i>
+                        <input type="text" id="lokasi" placeholder="Contoh: Kantin Teknik, Meja No. 5" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="deskripsi">Ciri-ciri & Deskripsi Lengkap</label>
+                    <textarea id="deskripsi" placeholder="Jelaskan kondisi barang, warna spesifik, merk, dll..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Unggah Foto Barang</label>
+                    <div class="file-upload-container" id="dropZone">
+                        <input type="file" id="foto_barang" accept="image/*" hidden>
+                        <div class="upload-placeholder" id="uploadPlaceholder">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <p>Klik untuk upload foto</p>
+                            <span class="file-support">JPG, PNG (Max 2MB)</span>
+                        </div>
+                        <div class="upload-preview" id="uploadPreview" style="display: none;">
+                            <img id="previewImg" src="" alt="Preview">
+                            <button type="button" id="removeBtn" class="remove-btn"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    Kirim Laporan
+                </button>
+            </form>
+        </div>
     </div>
-</body>
-<script src="assets/js/laporkanbarang.js"></script>
 
+    <footer class="simple-footer">
+        <div class="footer-content-simple">
+            <div class="footer-brand">TEMUCEPAT</div>
+            <div class="footer-links-simple">
+                <a href="beranda.html">Beranda</a>
+                <a href="beranda.html">Cari Barang</a>
+                <a href="laporkanbarang.html">Laporkan</a>
+            </div>
+            <div class="footer-copyright">
+                &copy; 2025 TEMUCEPAT. Semua hak dilindungi.
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/laporkanbarang.js"></script>
+</body>
 </html>

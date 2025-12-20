@@ -78,11 +78,9 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.transform = '';
         }, 150);
         
-        // Simulate navigation after animation
+        // Navigate to Beranda after animation
         setTimeout(() => {
-            alert('Anda akan diarahkan ke halaman pencarian barang. Fitur lengkap akan tersedia setelah login.');
-            // In a real application, you would redirect to the search page:
-            // window.location.href = 'search.html';
+            window.location.href = 'beranda.html';
         }, 300);
     });
     
@@ -97,11 +95,9 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.transform = '';
         }, 150);
         
-        // Simulate login navigation
+        // Navigate to DAFTAR.html#login after animation
         setTimeout(() => {
-            alert('Anda akan diarahkan ke halaman login. Fitur lengkap akan tersedia setelah login.');
-            // In a real application, you would redirect to the login page:
-            // window.location.href = 'login.html';
+            window.location.href = 'DAFTAR.html#login';
         }, 300);
     });
     

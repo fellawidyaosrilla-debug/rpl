@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - TemuCepat</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/admin_dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        body: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#f3f4f6',
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-secondary font-body text-gray-800">
+
+    <div class="flex h-screen flex-col md:flex-row">
+        
+        <div class="w-full md:w-64 bg-white shadow-xl flex-shrink-0 flex flex-col z-20">
+            <div class="p-6 border-b border-gray-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-xs font-bold text-white shadow-md">
+                        TC
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-gray-800 text-sm tracking-wide">ADMIN PANEL</h2>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4">
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                    <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+                        <img src="https://ui-avatars.com/api/?name=Admin+Super&background=random" alt="Admin" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-gray-800">Super Admin</p>
+                        <p class="text-xs text-green-500 font-medium">● Online</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="flex-1 px-4 space-y-2 py-4">
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-50 text-primary transition-all shadow-sm">
+                    <i class="fas fa-th-large w-5 text-center"></i>
+                    <span class="text-sm font-medium">Dashboard</span>
+                </a>
+                
+                <a href="status_admin.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-primary transition-all group">
+                    <i class="fas fa-check-circle w-5 text-center group-hover:scale-110 transition-transform"></i>
+                    <span class="text-sm font-medium">Verifikasi Laporan</span>
+                </a>
+
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-primary transition-all group">
+                    <i class="fas fa-users w-5 text-center group-hover:scale-110 transition-transform"></i>
+                    <span class="text-sm font-medium">Data Pengguna</span>
+                </a>
+            </nav>
+            
+            <div class="p-4 border-t border-gray-100 mt-auto">
+                <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 transition-colors">
+                    <i class="fas fa-sign-out-alt w-5 text-center"></i>
+                    <span class="text-sm font-medium">Logout</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
+            
+            <header class="bg-white shadow-sm border-b border-gray-100 z-10">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <h1 class="text-xl font-bold text-gray-800 font-sans">Dashboard Utama</h1>
+                    
+                    <div class="flex items-center gap-4">
+                        <div class="relative hidden md:block">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400 text-sm"></i>
+                            <input type="text" placeholder="Cari..." class="pl-10 pr-4 py-2 bg-gray-50 border-none rounded-lg text-sm focus:ring-2 focus:ring-blue-100 outline-none w-64 transition-all">
+                        </div>
+                        
+                        <div class="relative cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
+                            <i class="fas fa-bell text-gray-500 text-lg"></i>
+                            <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+                
+                <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-8 mb-8 text-white shadow-lg relative overflow-hidden">
+                    <div class="relative z-10">
+                        <h2 class="text-3xl font-bold mb-2 font-sans">Halo, Admin! 👋</h2>
+                        <p class="text-blue-100 opacity-90">Selamat datang kembali di panel kontrol TemuCepat.</p>
+                    </div>
+                    <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
+                    <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                                <i class="fas fa-users text-xl"></i>
+                            </div>
+                            <span class="text-xs font-bold text-green-500 bg-green-50 px-2 py-1 rounded-full">+12%</span>
+                        </div>
+                        <h3 id="stat-total-user" class="text-2xl font-bold text-gray-800">Loading...</h3>
+                        <p class="text-sm text-gray-500">Total Pengguna</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600">
+                                <i class="fas fa-box-open text-xl"></i>
+                            </div>
+                            <span class="text-xs font-bold text-green-500 bg-green-50 px-2 py-1 rounded-full">+5%</span>
+                        </div>
+                        <h3 id="stat-found" class="text-2xl font-bold text-gray-800">Loading...</h3>
+                        <p class="text-sm text-gray-500">Barang Ditemukan</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center text-orange-600">
+                                <i class="fas fa-search text-xl"></i>
+                            </div>
+                            <span class="text-xs font-bold text-red-500 bg-red-50 px-2 py-1 rounded-full">-2%</span>
+                        </div>
+                        <h3 id="stat-lost" class="text-2xl font-bold text-gray-800">Loading...</h3>
+                        <p class="text-sm text-gray-500">Barang Hilang</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                                <i class="fas fa-clock text-xl"></i>
+                            </div>
+                            <span class="text-xs font-bold text-yellow-500 bg-yellow-50 px-2 py-1 rounded-full">!</span>
+                        </div>
+                        <h3 id="stat-pending" class="text-2xl font-bold text-gray-800">Loading...</h3>
+                        <p class="text-sm text-gray-500">Menunggu Verifikasi</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                        <h2 class="font-bold text-gray-800 text-lg">Aktivitas Terbaru</h2>
+                        <a href="status_admin.html" class="text-sm text-primary font-medium hover:underline">Lihat Semua</a>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
+                                    <th class="p-4 font-semibold">User</th>
+                                    <th class="p-4 font-semibold">Aktivitas</th>
+                                    <th class="p-4 font-semibold">Waktu</th>
+                                    <th class="p-4 font-semibold text-right">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-sm">
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4 flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                            <i class="fas fa-user text-gray-500"></i>
+                                        </div>
+                                        <span class="font-medium text-gray-700">User Demo</span>
+                                    </td>
+                                    <td class="p-4 text-gray-600">Melaporkan barang</td>
+                                    <td class="p-4 text-gray-500">Baru saja</td>
+                                    <td class="p-4 text-right">
+                                        <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-bold">Pending</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </main>
+
+            <footer class="simple-footer">
+                <div class="footer-content-simple">
+                    <div class="footer-brand">TEMUCEPAT</div>
+                    <div class="footer-links-simple">
+                        <a href="beranda.html">Beranda</a>
+                        <a href="beranda.html">Cari Barang</a>
+                        <a href="laporkanbarang.html">Laporkan</a>
+                    </div>
+                    <div class="footer-copyright">
+                        &copy; 2025 TEMUCEPAT. Semua hak dilindungi.
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="assets/js/admin_dashboard.js"></script>
+    
+</body>
+</html>

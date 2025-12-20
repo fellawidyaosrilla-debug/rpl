@@ -1,192 +1,213 @@
+:root {
+    --primary: #3b82f6;
+    --primary-light: #eff6ff;
+    --text-dark: #1f2937;
+    --text-light: #6b7280;
+    --background: #f3f4f6;
+    --card-bg: #ffffff;
+    --border: #e5e7eb;
+    --radius: 12px;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+    
+    /* Notification Types Colors */
+    --color-info: #3b82f6;
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-danger: #ef4444;
+}
 
-        body {
-            font-family: 'Playfair Display', serif;
-            margin: 0;
-            color: #333;
-        }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* --- Header (matching TEMUCEPAT gray header) --- */
-        .custom-header {
-            background-color: #7a8a99;
-            padding: 12px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .custom-header .logo {
-            font-size: 24px;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: 1px;
-        }
-        .custom-header .right-group {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-        }
-        .custom-header .icon {
-            color: #fff;
-            font-size: 20px;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .custom-header .login-btn {
-            background-color: #98befb;
-            color: #fff;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 22px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 14px;
-        }
-        .custom-header .login-btn:hover { background-color: #7fafeb; }
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--background);
+    color: var(--text-dark);
+}
 
-        /* Area Konten Utama */
-        .main-content {
-            padding: 50px 20px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
+/* NAVBAR (Konsisten) */
+.navbar {
+    height: 70px;
+    background: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
 
-        /* --- Gaya Heading Utama --- */
-        .page-heading {
-            font-size: 3em; 
-            font-weight: bold;
-            color: #4a4a4a; 
-            margin-bottom: 5px;
-        }
+.brand {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-decoration: none;
+}
+.brand span { color: var(--text-dark); }
 
-        .page-subheading {
-            font-size: 1.2em;
-            color: #666;
-            margin-bottom: 30px;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 15px;
-        }
+.back-link {
+    text-decoration: none;
+    color: var(--text-light);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+}
+.back-link:hover { color: var(--primary); }
 
-        /* --- Gaya Kotak Notifikasi --- */
-        .notification-list {
-            list-style: none;
-            padding: 0;
-        }
+/* MAIN CONTENT */
+.main-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+    min-height: 80vh;
+}
 
-        .notification-item {
-            background-color: white;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between; 
-            transition: transform 0.2s;
-            cursor: pointer; /* Menandakan item bisa diklik */
-        }
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 30px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+}
 
-        .notification-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
+.page-title { font-family: 'Poppins', sans-serif; font-size: 2rem; color: var(--text-dark); }
+.page-subtitle { color: var(--text-light); margin-top: 5px; }
 
-        /* Notifikasi Belum Dibaca */
-        .notification-item.unread {
-            border-left: 5px solid #007bff; /* Garis biru tebal untuk penekanan */
-            background-color: #eef7ff; /* Latar belakang biru muda */
-        }
+.btn-mark-read {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: var(--transition);
+}
+.btn-mark-read:hover { text-decoration: underline; color: #2563eb; }
 
-        .notification-icon {
-            font-size: 1.5em;
-            margin-right: 20px;
-            color: #4a4a4a;
-        }
-        
-        .notification-content {
-            flex-grow: 1; 
-        }
+/* NOTIFICATION LIST */
+.notif-list { display: flex; flex-direction: column; gap: 15px; }
 
-        .notification-item.unread .notification-icon {
-            color: #007bff;
-        }
+.notif-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border: 1px solid transparent;
+    transition: var(--transition);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
 
-        .notification-content h4 {
-            margin: 0 0 5px 0;
-            font-size: 1.1em;
-            color: #333;
-        }
+.notif-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 
-        .notification-content p {
-            margin: 0;
-            font-size: 0.9em;
-            color: #666;
-        }
+/* Unread Style */
+.notif-card.unread {
+    background-color: #f8fafc;
+    border-left: 4px solid var(--primary);
+}
+.notif-card.unread::after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 10px;
+    height: 10px;
+    background-color: var(--color-danger);
+    border-radius: 50%;
+}
 
-        .notification-time {
-            font-size: 0.8em;
-            color: #aaa;
-            margin-top: 5px;
-            display: block;
-        }
-        
-        /* --- Gaya Status Indikator --- */
-        .notification-status {
-            font-size: 0.8em;
-            font-weight: bold;
-            padding: 5px 10px;
-            border-radius: 20px;
-            margin-left: 20px;
-            align-self: flex-start; 
-            white-space: nowrap; 
-        }
+/* Icon Styles */
+.notif-icon-box {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
 
-        /* Gaya Status "Belum Dibaca" */
-        .status-unread {
-            background-color: #ff5757; /* Merah cerah */
-            color: white;
-        }
-        
-        /* Gaya Status "Dibaca" */
-        .status-read {
-            background-color: #eee;
-            color: #666;
-        }
+.type-system { background-color: #e0f2fe; color: var(--color-info); }
+.type-match { background-color: #d1fae5; color: var(--color-success); }
+.type-claim { background-color: #fef3c7; color: var(--color-warning); }
 
-        /* Tombol Aksi */
-        .action-button {
-            padding: 10px 20px;
-            background-color: #5d9cec; 
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            margin-top: 20px;
-            transition: background-color 0.3s;
-        }
-        
-        .action-button:hover {
-            background-color: #4a80c9;
-        }
+/* Content */
+.notif-content { flex: 1; }
+.notif-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.notif-title { font-weight: 600; color: var(--text-dark); font-size: 1rem; }
+.notif-time { font-size: 0.8rem; color: var(--text-light); }
+.notif-desc { color: var(--text-light); font-size: 0.95rem; line-height: 1.5; }
 
-        .notification-controls { display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
-        .modal-image { width:100%; border-radius:8px; display:block; }
-        /* Detail modal overlay */
-        .overlay-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 2200; }
-        .overlay-modal.active { display: flex; }
-        .modal-panel { background: #fff; width: 720px; max-width: calc(100% - 48px); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; }
-        .modal-body { display: flex; gap: 24px; padding: 20px; }
-        .modal-left { flex: 1 1 45%; }
-        .modal-right { flex: 1 1 55%; display: flex; flex-direction: column; }
-        .modal-right h3 { margin: 0 0 8px 0; font-size: 20px; }
-        .modal-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px 0; }
-        .modal-meta .chip { background:#f3f4f6; padding:8px 12px; border-radius: 8px; font-size: 13px; }
-        .modal-actions { display:flex; gap:12px; margin-top: auto; }
-        .btn-primary { background:#2f2cde; color:#fff; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; }
-        .btn-secondary { background:#eee; color:#333; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; }
-        .detail-btn { background: transparent; border: 1px solid #e0e0e0; padding:6px 10px; border-radius:6px; cursor:pointer; font-size:13px; }
-    </style>
-</head>
-<body>
+/* Delete Button */
+.btn-delete {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 5px;
+    transition: var(--transition);
+    margin-left: 10px;
+}
+.btn-delete:hover { color: var(--color-danger); }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 60px 0; color: var(--text-light); }
+.empty-icon { font-size: 3rem; margin-bottom: 15px; opacity: 0.5; }
+
+/* MODAL */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.modal.show { display: flex; }
+
+.modal-content {
+    background: white;
+    width: 100%;
+    max-width: 500px;
+    border-radius: var(--radius);
+    padding: 30px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+.modal-title { font-family: 'Poppins', sans-serif; font-size: 1.2rem; }
+.close-modal { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-light); }
+
+.notif-meta { display: flex; gap: 10px; margin-bottom: 15px; font-size: 0.9rem; color: var(--text-light); }
+.badge { padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; background: #eee; font-weight: 600; }
+
+.modal-text { color: var(--text-dark); line-height: 1.6; margin-bottom: 30px; }
+
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.btn-primary { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
+.btn-secondary { background: #e5e7eb; color: var(--text-dark); border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
+
+/* Responsive */
+@media (max-width: 600px) {
+    .page-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+    .notif-card { flex-direction: column; gap: 15px; }
+    .notif-icon-box { width: 40px; height: 40px; font-size: 1rem; }
+}
