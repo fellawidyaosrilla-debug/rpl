@@ -12,4 +12,11 @@ const upload = require('../middlewares/uploadMiddleware');
 // Error sebelumnya terjadi di baris bawah ini karena klaimController.ajukanKlaim tidak terbaca
 router.post('/', verifyToken, upload.single('foto_bukti'), klaimController.ajukanKlaim);
 
+// === TAMBAHAN BARU ===
+// Route User A: Lihat siapa yang klaim barang saya
+router.get('/masuk', verifyToken, klaimController.getKlaimMasuk);
+
+// Route User A: Setujui/Tolak Klaim
+router.post('/verifikasi', verifyToken, klaimController.verifikasiKlaim);
+
 module.exports = router;

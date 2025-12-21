@@ -1,211 +1,139 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// ===============================
-// 1. BUAT LAPORAN (USER)
-// ===============================
+// 1. BUAT LAPORAN
 exports.buatLaporan = async (req, res) => {
-  try {
-    console.log('DECODED USER:', req.user);
-    console.log('BODY:', req.body);
-    console.log('FILE:', req.file);
+    try {
+        console.log("Body:", req.body); // Debug
 
-    const {
-      nama_barang,
-      lokasi_detail,
-      jenis_laporan, // <--- KITA AMBIL INI DARI FRONTEND
-      kategori,
-      tgl_kejadian,
-      deskripsi
-    } = req.body;
+        const { jenis_laporan, nama_barang, kategori, tgl_kejadian, lokasi, deskripsi } = req.body;
+        const userId = req.user.id; 
 
-    if (!nama_barang || !lokasi_detail) {
-      return res.status(400).json({
-        message: 'Nama barang dan lokasi wajib diisi'
-      });
+        // Validasi
+        if (!jenis_laporan || !nama_barang || !kategori || !tgl_kejadian || !lokasi) {
+            return res.status(400).json({ message: 'Mohon lengkapi data wajib.' });
+        }
+
+        // Simpan
+        const laporan = await prisma.laporan.create({
+            data: {
+                user_id: Number(userId),
+                jenis_laporan,
+                nama_barang,
+                kategori,
+                tgl_kejadian: new Date(tgl_kejadian), // Pastikan format tanggal
+                lokasi,
+                deskripsi: deskripsi || '',
+                foto: req.file ? `uploads/${req.file.filename}` : null,
+                status: 'MENUNGGU_VERIFIKASI'
+            }
+        });
+
+        res.status(201).json({ status: 'success', data: laporan });
+    } catch (error) {
+        console.error("Error Create:", error);
+        res.status(500).json({ message: error.message });
     }
-
-    const foto = req.file ? `uploads/${req.file.filename}` : null;
-
-    // Simpan ke Database
-    const laporan = await prisma.laporan.create({
-      data: {
-        nama_barang,
-        lokasi: lokasi_detail, 
-        foto,
-        user_id: req.user.id,
-        status: 'MENUNGGU_VERIFIKASI',
-        
-        // PENTING: Simpan jenis laporan (default KEHILANGAN jika kosong)
-        jenis_laporan: jenis_laporan || 'KEHILANGAN' 
-      }
-    });
-
-    return res.status(201).json({
-      message: 'Laporan berhasil dibuat',
-      laporan
-    });
-
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      message: 'Gagal membuat laporan'
-    });
-  }
 };
 
-// ===============================
-// 2. GET BERANDA (HANYA DIPUBLIKASIKAN)
-// ===============================
+// 2. AMBIL SEMUA (Public - Untuk Beranda)
+// Hanya menampilkan yang SUDAH DIPUBLIKASIKAN
 exports.getAllLaporan = async (req, res) => {
-  try {
-    const data = await prisma.laporan.findMany({
-      where: { status: 'DIPUBLIKASIKAN' },
-      include: { user: true },
-      orderBy: { created_at: 'desc' }
-    });
-
-    res.json({ status: 'success', data });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+    try {
+        const laporan = await prisma.laporan.findMany({
+            where: { status: 'DIPUBLIKASIKAN' },
+            orderBy: { created_at: 'desc' },
+            include: { user: { select: { nama: true } } }
+        });
+        res.json({ status: 'success', data: laporan });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
 
-// ===============================
-// 3. LAPORAN SAYA
-// ===============================
+// 3. DETAIL LAPORAN
+exports.getDetailLaporan = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const laporan = await prisma.laporan.findUnique({
+            where: { id: Number(id) }, 
+            include: { user: { select: { nama: true, no_hp: true } } }
+        });
+        res.json({ status: 'success', data: laporan });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// 4. LAPORAN SAYA
 exports.getLaporanSaya = async (req, res) => {
-  try {
-    // Cek apakah user sudah login (req.user ada)
-    const data = await prisma.laporan.findMany({
-      where: { user_id: req.user.id }, // Sesuaikan field foreign key user
-      orderBy: { created_at: 'desc' }
-    });
-
-    res.json({ status: 'success', data });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// ===============================
-// 4. DETAIL LAPORAN
-// ===============================
-exports.getLaporanById = async (req, res) => {
-  try {
-    // Pastikan field primary key sesuai (id atau id_laporan)
-    // Coba gunakan findFirst jika ragu nama kolomnya
-    const laporan = await prisma.laporan.findFirst({
-      where: { 
-        OR: [
-            { id: Number(req.params.id) },
-            // { id_laporan: Number(req.params.id) } // Uncomment jika pakai id_laporan
-        ]
-      }, 
-      include: {
-        user: true
-      }
-    });
-
-    if (!laporan) {
-      return res.status(404).json({ message: 'Laporan tidak ditemukan' });
+    try {
+        const userId = req.user.id;
+        const laporan = await prisma.laporan.findMany({
+            where: { user_id: Number(userId) },
+            orderBy: { created_at: 'desc' }
+        });
+        res.json({ status: 'success', data: laporan });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
-
-    res.json({ status: 'success', data: laporan });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 };
 
-// ===============================
-// 5. VERIFIKASI LAPORAN (ADMIN)
-// ===============================
+// 5. VERIFIKASI (Admin)
 exports.verifikasiLaporan = async (req, res) => {
-  try {
-    const { id } = req.params; 
-    const { status } = req.body; 
-
-    if (!['DIPUBLIKASIKAN', 'DITOLAK'].includes(status)) {
-      return res.status(400).json({ message: 'Status tidak valid' });
+    try {
+        const { id } = req.params;
+        const { status } = req.body; 
+        
+        const update = await prisma.laporan.update({
+            where: { id: Number(id) }, 
+            data: { status: status }
+        });
+        res.json({ status: 'success', data: update });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
-
-    const updatedLaporan = await prisma.laporan.update({
-      where: { id: Number(id) }, 
-      data: { status: status }
-    });
-
-    res.json({
-      status: 'success',
-      message: `Laporan berhasil diubah menjadi ${status}`,
-      data: updatedLaporan
-    });
-
-  } catch (error) {
-    console.error('Error Verifikasi:', error);
-    if (error.code === 'P2025') {
-       return res.status(404).json({ message: 'Laporan tidak ditemukan' });
-    }
-    res.status(500).json({ message: 'Gagal memverifikasi laporan' });
-  }
 };
 
-// ===============================
-// 6. DASHBOARD STATS (ADMIN)
-// ===============================
+// 6. DASHBOARD STATS
 exports.getDashboardStats = async (req, res) => {
-  try {
-    // SEKARANG KITA BISA HITUNG BENERAN KARENA KOLOM 'jenis_laporan' SUDAH ADA
-    const [totalUser, barangDitemukan, barangHilang, pending] = await Promise.all([
-      prisma.user.count(), 
-      
-      // Hitung Barang Ditemukan (Yang sudah dipublish)
-      prisma.laporan.count({ 
-        where: { jenis_laporan: 'DITEMUKAN', status: 'DIPUBLIKASIKAN' } 
-      }),
-      
-      // Hitung Barang Hilang (Yang sudah dipublish)
-      prisma.laporan.count({ 
-        where: { jenis_laporan: 'KEHILANGAN', status: 'DIPUBLIKASIKAN' } 
-      }),
-      
-      // Hitung yang Pending
-      prisma.laporan.count({ 
-        where: { status: 'MENUNGGU_VERIFIKASI' } 
-      })
-    ]);
+    try {
+        const totalUser = await prisma.user.count({ where: { role: 'USER' } });
+        const barangDitemukan = await prisma.laporan.count({ where: { jenis_laporan: 'DITEMUKAN' } });
+        const barangHilang = await prisma.laporan.count({ where: { jenis_laporan: 'KEHILANGAN' } });
+        const pending = await prisma.laporan.count({ where: { status: 'MENUNGGU_VERIFIKASI' } });
 
-    res.json({
-      status: 'success',
-      data: {
-        totalUser,
-        barangDitemukan,
-        barangHilang,
-        pending
-      }
-    });
-
-  } catch (error) {
-    console.error('Error Dashboard Stats:', error);
-    res.status(500).json({ message: 'Gagal mengambil data dashboard' });
-  }
+        res.json({ status: 'success', data: { totalUser, barangDitemukan, barangHilang, pending } });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
 
-// ===============================
-// 7. RECENT ACTIVITY (ADMIN)
-// ===============================
+// 7. RECENT ACTIVITY
 exports.getRecentActivity = async (req, res) => {
-  try {
-    const recent = await prisma.laporan.findMany({
-      take: 5,
-      orderBy: { created_at: 'desc' },
-      include: {
-        user: { select: { nama: true } }
-      }
-    });
+    try {
+        const data = await prisma.laporan.findMany({
+            take: 5,
+            orderBy: { created_at: 'desc' },
+            include: { user: { select: { nama: true } } }
+        });
+        res.json({ status: 'success', data: data });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 
-    res.json({ status: 'success', data: recent });
-  } catch (error) {
-    console.error('Error Recent Activity:', error);
-    res.status(500).json({ message: 'Gagal mengambil aktivitas terbaru' });
-  }
+// === 8. GET SEMUA LAPORAN (KHUSUS ADMIN) ===
+// Ini yang dipakai di halaman status_admin.html
+exports.getSemuaLaporan = async (req, res) => {
+    try {
+        // Ambil SEMUA data tanpa filter status
+        const laporan = await prisma.laporan.findMany({
+            orderBy: { created_at: 'desc' },
+            include: { user: { select: { nama: true } } }
+        });
+        res.json({ status: 'success', data: laporan });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };

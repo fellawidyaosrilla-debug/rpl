@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const idLaporan = urlParams.get('id');
     const token = localStorage.getItem('token_temucepat');
     const API_URL = `http://localhost:5000/api/laporan/${idLaporan}`;
-    const KLAIM_URL = 'http://localhost:5000/api/laporan/klaim';
+    const KLAIM_URL = 'http://localhost:5000/api/klaim';
     const BACKEND_URL = 'http://localhost:5000';
 
     if (!idLaporan) {

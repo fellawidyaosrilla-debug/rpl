@@ -42,17 +42,24 @@ model User {
 }
 
 model Laporan {
-  id          Int           @id @default(autoincrement())
-  user_id     Int
-  user        User          @relation(fields: [user_id], references: [id])
-  nama_barang String
-  lokasi      String
-  jenis_laporan String   @default("KEHILANGAN") // Opsinya: 'KEHILANGAN' atau 'DITEMUKAN'
-  foto        String?
-  status      StatusLaporan @default(MENUNGGU_VERIFIKASI)
-  created_at  DateTime      @default(now())
+  id             Int           @id @default(autoincrement())
+  user_id        Int
+  user           User          @relation(fields: [user_id], references: [id])
+  
+  // === KOLOM LAMA ===
+  nama_barang    String
+  lokasi         String
+  jenis_laporan  String        @default("KEHILANGAN") 
+  foto           String?
+  status         StatusLaporan @default(MENUNGGU_VERIFIKASI)
+  created_at     DateTime      @default(now())
 
-  klaim       Klaim[]
+  // === KOLOM BARU (WAJIB DITAMBAHKAN) ===
+  kategori       String        @default("Lainnya")
+  tgl_kejadian   DateTime      @default(now())
+  deskripsi      String        @db.Text // @db.Text agar bisa nampung tulisan panjang
+
+  klaim          Klaim[]
 }
 
 model Klaim {
@@ -77,12 +84,17 @@ model Klaim {
   created_at      DateTime @default(now())
 }
 
+// ... model User, Laporan, Klaim yang sudah ada ...
+
 model Notifikasi {
-  id         Int      @id @default(autoincrement())
-  user_id    Int
-  user       User     @relation(fields: [user_id], references: [id])
-  judul      String
-  pesan      String
-  is_read    Boolean  @default(false)
-  created_at DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  userId    Int      // Penerima Notifikasi (User B)
+  user      User     @relation(fields: [userId], references: [id])
+  
+  judul     String
+  pesan     String   @db.Text
+  isRead    Boolean  @default(false)
+  type      String   @default("INFO") // INFO, KLAIM_DITERIMA
+  
+  createdAt DateTime @default(now())
 }

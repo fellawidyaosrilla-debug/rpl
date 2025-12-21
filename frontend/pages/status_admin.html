@@ -53,35 +53,44 @@
         </aside>
 
         <div class="flex-1 flex flex-col h-screen overflow-hidden">
-            <header class="bg-white shadow-sm border-b border-gray-100 z-10 p-6">
+            <header class="bg-white shadow-sm border-b border-gray-100 z-10 p-6 flex justify-between items-center">
                 <h1 class="text-2xl font-bold text-gray-800">Status & Verifikasi</h1>
+                
+                <button class="md:hidden text-gray-500 hover:text-blue-600">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
             </header>
 
             <main class="flex-1 overflow-y-auto p-6 md:p-8">
                 
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                    <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
                         <h3 class="font-bold text-gray-700">Daftar Laporan Masuk</h3>
-                        <select id="filterStatus" class="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="all">Semua Status</option>
-                            <option value="MENUNGGU_VERIFIKASI" selected>Pending (Perlu Aksi)</option>
-                            <option value="DIPUBLIKASIKAN">Dipublikasikan</option>
-                            <option value="DITOLAK">Ditolak</option>
-                        </select>
+                        
+                        <div class="relative">
+                            <i class="fas fa-filter absolute left-3 top-3 text-gray-400 text-xs"></i>
+                            <select id="filterStatus" class="pl-8 border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                <option value="all">Semua Status</option>
+                                <option value="MENUNGGU_VERIFIKASI">Pending</option>
+                                <option value="DIPUBLIKASIKAN">Diterima</option>
+                                <option value="DITOLAK">Ditolak</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
-                                    <th class="p-4">Barang & Lokasi</th>
-                                    <th class="p-4">Pelapor</th>
+                                <tr class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">
+                                    <th class="p-4 text-center w-12">No</th>
+                                    <th class="p-4">Info Barang & Pelapor</th>
+                                    <th class="p-4">Jenis</th>
                                     <th class="p-4">Tanggal</th>
                                     <th class="p-4 text-center">Status</th>
-                                    <th class="p-4 text-right">Aksi</th>
+                                    <th class="p-4 text-center w-48">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody id="reportTableBody">
+                            <tbody id="laporanTableBody" class="divide-y divide-gray-100 text-sm">
                                 </tbody>
                         </table>
                     </div>
@@ -95,5 +104,24 @@
     </div>
 
     <script src="assets/js/status_admin.js"></script>
+    
+    <script>
+        function logout() {
+            Swal.fire({
+                title: 'Keluar?',
+                text: "Anda akan keluar dari sesi admin.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Keluar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.clear();
+                    window.location.href = 'daftar.html'; // Sesuaikan dengan halaman login kamu
+                }
+            })
+        }
+    </script>
 </body>
 </html>

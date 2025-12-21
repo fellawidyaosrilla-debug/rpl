@@ -1,12 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const notifController = require('../controllers/notifikasiController');
 const { verifyToken } = require('../middlewares/authMiddleware');
-const notifikasiController = require('../controllers/notifikasiController');
 
-router.get('/', verifyToken, notifikasiController.getNotifSaya);
-router.post('/confirm-claim', verifyToken, notifikasiController.confirmClaim);
-router.post('/reject-claim', verifyToken, notifikasiController.rejectClaim);
-router.post('/mark-read', verifyToken, notifikasiController.markRead);
-router.post('/mark-all-read', verifyToken, notifikasiController.markAllRead);
+router.get('/', verifyToken, notifController.getMyNotif);
+router.post('/read', verifyToken, notifController.markAsRead);
 
 module.exports = router;

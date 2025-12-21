@@ -1,18 +1,35 @@
 document.addEventListener('DOMContentLoaded', () => {
     
+    // Pastikan URL ini benar
     const API_URL = 'http://localhost:5000/api/auth';
     
-    // === REGISTER ===
+    // === LOGIKA REGISTER ===
     const regForm = document.getElementById('registerForm');
     if (regForm) {
         regForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const nama = document.getElementById('regName').value;
-            const no_hp = document.getElementById('regPhone').value;
-            const password = document.getElementById('regPassword').value;
+            // Ambil value dan hapus spasi di awal/akhir
+            const nama = document.getElementById('regName').value.trim();
+            const no_hp = document.getElementById('regPhone').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            const agree = document.getElementById('agree').checked;
 
-            // Loading State
+            // DEBUGGING: Cek di Console Browser (F12)
+            console.log("Mencoba daftar dengan data:", { nama, no_hp, password, agree });
+
+            // 1. Validasi Di Sini (Agar tidak perlu ke server kalau kosong)
+            if (!nama || !no_hp || !password) {
+                Swal.fire('Gagal', 'Mohon lengkapi Nama, Nomor HP, dan Password.', 'warning');
+                return;
+            }
+
+            if (!agree) {
+                Swal.fire('Gagal', 'Anda harus menyetujui Syarat & Ketentuan.', 'warning');
+                return;
+            }
+
+            // Tombol Loading
             const btn = regForm.querySelector('button');
             const originalText = btn.innerText;
             btn.innerText = 'Memproses...';
@@ -26,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 
                 const result = await response.json();
+                console.log("Respon Server:", result); // Debugging Respon
 
                 if (response.ok) {
                     Swal.fire({
@@ -34,14 +52,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         text: 'Silakan login dengan akun baru Anda.',
                         confirmButtonColor: '#3b82f6'
                     }).then(() => {
-                        // Pindah ke tab login otomatis
                         switchTab('login');
                         regForm.reset();
                     });
                 } else {
-                    throw new Error(result.message || 'Gagal Mendaftar');
+                    // Tampilkan pesan error spesifik dari server
+                    throw new Error(result.message || 'Gagal Mendaftar (Cek Console)');
                 }
             } catch (error) {
+                console.error("Error Fetch:", error);
                 Swal.fire('Gagal', error.message, 'error');
             } finally {
                 btn.innerText = originalText;
@@ -50,14 +69,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // === LOGIN ===
+    // === LOGIKA LOGIN ===
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const no_hp = document.getElementById('loginPhone').value;
-            const password = document.getElementById('loginPassword').value;
+            const no_hp = document.getElementById('loginPhone').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            if(!no_hp || !password) {
+                Swal.fire('Gagal', 'Nomor HP dan Password wajib diisi.', 'warning');
+                return;
+            }
 
             const btn = loginForm.querySelector('button');
             const originalText = btn.innerText;
@@ -74,18 +98,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
 
                 if (response.ok) {
-                    // Simpan Token & User Data
                     localStorage.setItem('token_temucepat', result.token);
                     localStorage.setItem('user_temucepat', JSON.stringify(result.user));
 
                     Swal.fire({
                         icon: 'success',
                         title: 'Login Berhasil!',
-                        text: 'Mengalihkan ke beranda...',
                         showConfirmButton: false,
                         timer: 1500
                     }).then(() => {
-                        // Redirect Berdasarkan Role
                         if (result.user.role === 'ADMIN') {
                             window.location.href = 'admin_dashboard.html';
                         } else {
@@ -93,10 +114,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     });
                 } else {
-                    throw new Error(result.message || 'No HP atau Password Salah');
+                    throw new Error(result.message || 'Login Gagal');
                 }
             } catch (error) {
-                Swal.fire('Login Gagal', error.message, 'error');
+                Swal.fire('Gagal', error.message, 'error');
             } finally {
                 btn.innerText = originalText;
                 btn.disabled = false;

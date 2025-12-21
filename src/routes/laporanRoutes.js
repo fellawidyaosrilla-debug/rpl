@@ -3,27 +3,39 @@ const router = express.Router();
 const laporanController = require('../controllers/laporanController');
 const { verifyToken } = require('../middlewares/authMiddleware');
 const upload = require('../middlewares/uploadMiddleware');
-const klaimController = require('../controllers/klaimController');
-// 1. Buat Laporan (POST)
-router.post('/', verifyToken, upload.single('foto'), laporanController.buatLaporan);
 
-// 2. Ambil Laporan Saya
-router.get('/saya', verifyToken, laporanController.getLaporanSaya);
+// === A. ROUTE STATIS (Harus di Paling Atas) ===
 
-// 3. Ambil Semua Laporan
+// 1. Ambil Semua Laporan PUBLIK (Untuk Beranda - Hanya yang sudah dipublikasikan)
 router.get('/', laporanController.getAllLaporan);
 
-// === TAMBAHAN BARU: Route Verifikasi ===
-// Pastikan fungsi verifikasiLaporan sudah ada di controller (Langkah 1)
-router.patch('/:id/verifikasi', verifyToken, laporanController.verifikasiLaporan);
+// 2. Statistik Dashboard (Admin)
+router.get('/stats/dashboard', verifyToken, laporanController.getDashboardStats);
 
-// 4. Ambil Laporan by ID
-router.get('/:id', laporanController.getLaporanById);
-
+// 3. Aktivitas Terbaru (Admin)
 router.get('/stats/recent', verifyToken, laporanController.getRecentActivity);
 
-router.post('/klaim', verifyToken, upload.single('foto_bukti'), klaimController.ajukanKlaim);
+// 4. Laporan Saya (User Login)
+router.get('/saya', verifyToken, laporanController.getLaporanSaya);
 
-router.get('/stats/dashboard', verifyToken, laporanController.getDashboardStats);
+// === 5. AMBIL SEMUA LAPORAN (KHUSUS ADMIN) ===
+// PENTING: Route ini mengambil SEMUA status (Pending, Ditolak, Dipublikasikan)
+// Harus ditaruh sebelum route '/:id'
+router.get('/semua', verifyToken, laporanController.getSemuaLaporan);
+
+// === B. ROUTE AKSI (POST/PATCH) ===
+
+// 6. Buat Laporan Baru
+router.post('/', verifyToken, upload.single('foto'), laporanController.buatLaporan);
+
+// 7. Verifikasi Laporan (Admin)
+router.patch('/:id/verifikasi', verifyToken, laporanController.verifikasiLaporan);
+
+// === C. ROUTE DINAMIS (Harus Paling Bawah) ===
+
+// 8. Detail Laporan by ID
+// PENTING: ':id' akan menangkap teks apa saja setelah slash.
+// Jangan taruh route statis di bawah baris ini.
+router.get('/:id', laporanController.getDetailLaporan);
 
 module.exports = router;

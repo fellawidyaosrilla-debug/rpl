@@ -1,157 +1,117 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // === 1. KONFIGURASI ===
-    const API_URL = 'http://localhost:5000/api/laporan';
-    const token = localStorage.getItem('token_temucepat');
-
     // Cek Login
+    const token = localStorage.getItem('token_temucepat');
     if (!token) {
         Swal.fire({
             icon: 'warning',
             title: 'Akses Ditolak',
-            text: 'Silakan login terlebih dahulu!'
-        }).then(() => {
-            window.location.href = 'daftar.html';
-        });
+            text: 'Silakan login terlebih dahulu.',
+            confirmButtonText: 'Login'
+        }).then(() => window.location.href = 'daftar.html');
         return;
     }
 
-    // === 2. LOGIKA TOGGLE (GANTI STATUS) ===
-    const btnFound = document.getElementById('btnFound');
-    const btnLost = document.getElementById('btnLost');
-    const hiddenInput = document.getElementById('jenis_laporan');
-    const body = document.body;
-    const formTitle = document.getElementById('formTitle');
+    // Set tanggal hari ini sebagai default
+    document.getElementById('tanggal').valueAsDate = new Date();
+});
 
-    // Fungsi Update Tampilan
-    function updateStatus(type) {
-        if (type === 'DITEMUKAN') {
-            // Mode DITEMUKAN (Hijau)
-            btnFound.classList.add('active');
-            btnLost.classList.remove('active');
-            body.classList.remove('mode-lost');
-            body.classList.add('mode-found');
-            formTitle.innerText = 'Lapor Penemuan Barang';
-            hiddenInput.value = 'DITEMUKAN'; // <--- PENTING: Set ke DITEMUKAN
-        } else {
-            // Mode KEHILANGAN (Merah)
-            btnLost.classList.add('active');
-            btnFound.classList.remove('active');
-            body.classList.remove('mode-found');
-            body.classList.add('mode-lost');
-            formTitle.innerText = 'Lapor Kehilangan Barang';
-            hiddenInput.value = 'KEHILANGAN';
+// --- 1. LOGIKA TOGGLE (TEMUAN vs KEHILANGAN) ---
+window.setTipe = function(tipe) {
+    const btnTemuan = document.getElementById('btnTemuan');
+    const btnKehilangan = document.getElementById('btnKehilangan');
+    const inputTipe = document.getElementById('jenisLaporan');
+    const btnSubmit = document.getElementById('btnSubmit');
+
+    inputTipe.value = tipe;
+
+    if (tipe === 'DITEMUKAN') {
+        // Style Hijau
+        btnTemuan.className = "flex-1 py-4 text-center font-bold text-green-600 border-b-2 border-green-600 bg-green-50 transition-all";
+        btnKehilangan.className = "flex-1 py-4 text-center font-bold text-gray-400 hover:text-red-500 transition-all";
+        
+        btnSubmit.className = "px-8 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-bold shadow-lg transform hover:-translate-y-1 transition-all flex items-center gap-2";
+        btnSubmit.innerHTML = '<i class="fas fa-hand-holding-heart"></i> Lapor Penemuan';
+    } else {
+        // Style Merah
+        btnKehilangan.className = "flex-1 py-4 text-center font-bold text-red-600 border-b-2 border-red-600 bg-red-50 transition-all";
+        btnTemuan.className = "flex-1 py-4 text-center font-bold text-gray-400 hover:text-green-500 transition-all";
+        
+        btnSubmit.className = "px-8 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold shadow-lg transform hover:-translate-y-1 transition-all flex items-center gap-2";
+        btnSubmit.innerHTML = '<i class="fas fa-search"></i> Lapor Kehilangan';
+    }
+};
+
+// --- 2. PREVIEW IMAGE ---
+window.previewImage = function(input) {
+    const preview = document.getElementById('imgPreview');
+    const placeholder = document.getElementById('uploadPlaceholder');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.classList.remove('hidden');
+            placeholder.classList.add('hidden');
         }
+        reader.readAsDataURL(input.files[0]);
+    }
+};
+
+// --- 3. SUBMIT FORM KE BACKEND ---
+document.getElementById('laporForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const token = localStorage.getItem('token_temucepat');
+    const formData = new FormData();
+
+    // Ambil Data
+    formData.append('jenis_laporan', document.getElementById('jenisLaporan').value);
+    formData.append('nama_barang', document.getElementById('namaBarang').value);
+    formData.append('kategori', document.getElementById('kategori').value);
+    formData.append('tgl_kejadian', document.getElementById('tanggal').value);
+    formData.append('lokasi', document.getElementById('lokasi').value);
+    formData.append('deskripsi', document.getElementById('deskripsi').value);
+    
+    // File Foto (Opsional tapi disarankan)
+    const fileInput = document.getElementById('fotoBarang');
+    if (fileInput.files[0]) {
+        formData.append('foto', fileInput.files[0]);
     }
 
-    // Event Listener Tombol
-    btnFound.addEventListener('click', () => updateStatus('DITEMUKAN'));
-    btnLost.addEventListener('click', () => updateStatus('KEHILANGAN'));
+    // Loading State
+    const btn = document.getElementById('btnSubmit');
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+    btn.disabled = true;
 
-    // Set default saat loading (Baca dari HTML awal)
-    // HTML kamu defaultnya 'PENEMUAN', kita paksa ubah jadi 'DITEMUKAN' saat start
-    updateStatus('DITEMUKAN'); 
+    try {
+        const response = await fetch('http://localhost:5000/api/laporan', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }, // Header Auth
+            body: formData // JANGAN set Content-Type manual kalau pakai FormData
+        });
 
+        const result = await response.json();
 
-    // === 3. LOGIKA UPLOAD PREVIEW ===
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('foto_barang');
-    const previewContainer = document.getElementById('uploadPreview');
-    const previewImg = document.getElementById('previewImg');
-    const removeBtn = document.getElementById('removeBtn');
-    const uploadPlaceholder = document.getElementById('uploadPlaceholder');
-
-    // Klik area -> Buka file explorer
-    dropZone.addEventListener('click', () => fileInput.click());
-
-    // Saat file dipilih
-    fileInput.addEventListener('change', function() {
-        const file = this.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                previewImg.src = e.target.result;
-                previewContainer.style.display = 'block';
-                uploadPlaceholder.style.display = 'none';
-            }
-            reader.readAsDataURL(file);
-        }
-    });
-
-    // Hapus foto
-    removeBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // Biar gak kebuka lagi file explorernya
-        fileInput.value = '';
-        previewContainer.style.display = 'none';
-        uploadPlaceholder.style.display = 'flex';
-    });
-
-
-    // === 4. LOGIKA SUBMIT FORM (PENTING) ===
-    const form = document.getElementById('laporanForm');
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        // Ambil tombol submit biar bisa loading state
-        const submitBtn = document.getElementById('submitBtn');
-        const originalText = submitBtn.innerText;
-        submitBtn.innerText = 'Mengirim...';
-        submitBtn.disabled = true;
-
-        try {
-            // Gunakan FormData untuk kirim file + text
-            const formData = new FormData();
-
-            formData.append('nama_barang', document.getElementById('nama_barang').value);
-            formData.append('kategori', document.getElementById('kategori').value);
-            formData.append('tgl_kejadian', document.getElementById('tgl_kejadian').value);
-            formData.append('lokasi_detail', document.getElementById('lokasi').value); // Backend: lokasi_detail
-            formData.append('deskripsi', document.getElementById('deskripsi').value);
-            
-            // PENTING: Ambil nilai hidden input yang sudah diperbaiki logicnya di atas
-            formData.append('jenis_laporan', hiddenInput.value); 
-
-            // Ambil file foto jika ada
-            if (fileInput.files[0]) {
-                formData.append('foto', fileInput.files[0]);
-            }
-
-            // Kirim ke Backend
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                    // Jangan set Content-Type kalau pakai FormData, browser otomatis set boundary
-                },
-                body: formData
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: 'Laporan Anda berhasil dikirim dan menunggu verifikasi admin.',
-                    confirmButtonColor: '#3b82f6'
-                }).then(() => {
-                    window.location.href = 'beranda.html';
-                });
-            } else {
-                throw new Error(result.message || 'Gagal mengirim laporan');
-            }
-
-        } catch (error) {
-            console.error(error);
+        if (response.ok) {
             Swal.fire({
-                icon: 'error',
-                title: 'Gagal',
-                text: error.message
+                icon: 'success',
+                title: 'Laporan Terkirim!',
+                text: 'Laporan Anda akan diverifikasi oleh Admin.',
+                confirmButtonColor: '#3b82f6'
+            }).then(() => {
+                window.location.href = 'kelola_laporan.html'; // Redirect ke dashboard user
             });
-        } finally {
-            submitBtn.innerText = originalText;
-            submitBtn.disabled = false;
+        } else {
+            throw new Error(result.message || 'Gagal mengirim laporan');
         }
-    });
+
+    } catch (error) {
+        console.error(error);
+        Swal.fire('Gagal', error.message, 'error');
+    } finally {
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+    }
 });

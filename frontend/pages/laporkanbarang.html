@@ -3,129 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lapor Barang - TEMUCEPAT</title>
+    <title>Lapor Barang - TemuCepat</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/styles.css">
-    <link rel="stylesheet" href="assets/css/laporkanbarang.css">
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = { theme: { extend: { fontFamily: { sans: ['Poppins', 'sans-serif'] } } } }
+    </script>
 </head>
-<body class="mode-found"> <header class="navbar">
-        <a href="beranda.html" class="brand">TEMU<span>CEPAT</span></a>
-        <div class="nav-right">
-            <a href="beranda.html" class="back-link">
-                <i class="fas fa-arrow-left"></i> Kembali
-            </a>
+<body class="bg-gray-50 font-sans text-gray-800 flex flex-col min-h-screen">
+
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="beranda.html" class="text-2xl font-bold text-blue-600 tracking-tight">TEMU<span class="text-gray-900">CEPAT</span></a>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button id="notifBtn" class="p-2 rounded-full text-gray-500 hover:bg-gray-100 relative"><i class="far fa-bell text-xl"></i></button>
+                    <div class="relative ml-3">
+                        <button id="userBtn" class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-full shadow-md hover:bg-blue-700 transition">
+                            <i class="far fa-user"></i> <span id="userName" class="text-sm font-medium">Akun</span>
+                        </button>
+                        <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-1 z-50">
+                            <a href="laporkanbarang.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 font-bold bg-blue-50 text-blue-600"><i class="fas fa-plus-circle mr-2 text-blue-500"></i> Laporkan Barang</a>
+                            <a href="kelola_laporan.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50"><i class="fas fa-tasks mr-2 text-orange-500"></i> Kelola Laporan</a>
+                            <div class="border-t border-gray-100 my-1"></div>
+                            <a href="#" id="logoutBtn" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50"><i class="fas fa-sign-out-alt mr-2"></i> Keluar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
 
-    <div class="main-container">
-        <div class="form-card">
-            <div class="form-header">
-                <h1 id="formTitle">Lapor Penemuan Barang</h1>
-                <p>Isi formulir di bawah ini dengan detail yang akurat.</p>
-            </div>
+    <main class="flex-grow max-w-5xl mx-auto px-4 py-10 w-full">
+        
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-bold text-gray-800">Buat Laporan Baru 📝</h1>
+            <p class="text-gray-500 mt-2">Bantu orang lain menemukan barangnya atau cari barang Anda yang hilang.</p>
+        </div>
 
-            <div class="status-toggle-container">
-                <div class="status-toggle">
-                    <button type="button" class="toggle-btn active" id="btnFound" data-type="PENEMUAN">
-                        <i class="fas fa-check-circle"></i> Saya Menemukan
-                    </button>
-                    <button type="button" class="toggle-btn" id="btnLost" data-type="KEHILANGAN">
-                        <i class="fas fa-search"></i> Saya Kehilangan
-                    </button>
-                </div>
-            </div>
-
-            <form id="laporanForm">
-                <input type="hidden" id="jenis_laporan" name="jenis_laporan" value="PENEMUAN">
-
-                <div class="form-group">
-                    <label for="nama_barang">Nama Barang</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-tag input-icon"></i>
-                        <input type="text" id="nama_barang" placeholder="Contoh: Dompet Kulit Coklat" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-    <label for="kategori">Kategori</label>
-    <div class="input-wrapper">
-        <i class="fas fa-list input-icon"></i>
-        <select id="kategori" required>
-            <option value="">Pilih Kategori Barang</option>
-            <option value="Elektronik">Elektronik (HP, Laptop, Charger)</option>
-            <option value="Dompet & Tas">Dompet & Tas</option>
-            <option value="Kartu & Dokumen">Kartu (KTM/KTP) & Dokumen</option>
-            <option value="Kunci">Kunci (Motor/Kost/Rumah)</option>
-            <option value="Helm & Kendaraan">Helm & Aksesoris Kendaraan</option>
-            <option value="Pakaian & Sepatu">Pakaian, Jaket & Sepatu</option>
-            <option value="Aksesoris (Jam/Kacamata)">Aksesoris (Jam, Kacamata, Perhiasan)</option>
-            <option value="Uang Tunai">Uang Tunai</option>
-            <option value="Lainnya">Lainnya</option>
-        </select>
-    </div>
-</div>
-                    <div class="form-group">
-                        <label for="tgl_kejadian">Tanggal Kejadian</label>
-                        <div class="input-wrapper">
-                            <input type="date" id="tgl_kejadian" required>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="lokasi">Lokasi Detail</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-map-marker-alt input-icon"></i>
-                        <input type="text" id="lokasi" placeholder="Contoh: Kantin Teknik, Meja No. 5" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="deskripsi">Ciri-ciri & Deskripsi Lengkap</label>
-                    <textarea id="deskripsi" placeholder="Jelaskan kondisi barang, warna spesifik, merk, dll..." required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Unggah Foto Barang</label>
-                    <div class="file-upload-container" id="dropZone">
-                        <input type="file" id="foto_barang" accept="image/*" hidden>
-                        <div class="upload-placeholder" id="uploadPlaceholder">
-                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                            <p>Klik untuk upload foto</p>
-                            <span class="file-support">JPG, PNG (Max 2MB)</span>
-                        </div>
-                        <div class="upload-preview" id="uploadPreview" style="display: none;">
-                            <img id="previewImg" src="" alt="Preview">
-                            <button type="button" id="removeBtn" class="remove-btn"><i class="fas fa-times"></i></button>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="submit" class="submit-btn" id="submitBtn">
-                    Kirim Laporan
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+            
+            <div class="flex border-b border-gray-100">
+                <button id="btnTemuan" class="flex-1 py-4 text-center font-bold text-green-600 border-b-2 border-green-600 bg-green-50 transition-all" onclick="setTipe('DITEMUKAN')">
+                    <i class="fas fa-hand-holding-heart mr-2"></i> Saya Menemukan Barang
                 </button>
+                <button id="btnKehilangan" class="flex-1 py-4 text-center font-bold text-gray-400 hover:text-red-500 transition-all" onclick="setTipe('KEHILANGAN')">
+                    <i class="fas fa-search mr-2"></i> Saya Kehilangan Barang
+                </button>
+            </div>
+
+            <form id="laporForm" class="p-8">
+                <input type="hidden" id="jenisLaporan" value="DITEMUKAN">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Barang</label>
+                            <input type="text" id="namaBarang" placeholder="Contoh: Dompet Kulit Coklat" class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+                            <select id="kategori" class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition" required>
+                                <option value="">Pilih Kategori</option>
+                                <option value="Elektronik">Elektronik</option>
+                                <option value="Dompet & Tas">Dompet & Tas</option>
+                                <option value="Kartu & Dokumen">Kartu & Dokumen</option>
+                                <option value="Kunci">Kunci</option>
+                                <option value="Helm & Kendaraan">Helm & Kendaraan</option>
+                                <option value="Pakaian & Sepatu">Pakaian & Sepatu</option>
+                                <option value="Aksesoris (Jam/Kacamata)">Aksesoris</option>
+                                <option value="Uang Tunai">Uang Tunai</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Kejadian</label>
+                            <input type="date" id="tanggal" class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Lokasi Kejadian</label>
+                            <div class="relative">
+                                <i class="fas fa-map-marker-alt absolute left-4 top-3.5 text-gray-400"></i>
+                                <input type="text" id="lokasi" placeholder="Contoh: Kantin FTI, Parkiran Gd H" class="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Unggah Foto Barang</label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:bg-gray-50 transition cursor-pointer relative group" onclick="document.getElementById('fotoBarang').click()">
+                                <input type="file" id="fotoBarang" class="hidden" accept="image/*" onchange="previewImage(this)">
+                                
+                                <div id="uploadPlaceholder">
+                                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-300 mb-2 group-hover:text-blue-500 transition"></i>
+                                    <p class="text-sm text-gray-500">Klik untuk upload foto (Max 2MB)</p>
+                                </div>
+                                <img id="imgPreview" class="hidden w-full h-48 object-cover rounded-lg mx-auto">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Ciri-ciri & Deskripsi Lengkap</label>
+                            <textarea id="deskripsi" rows="4" placeholder="Jelaskan kondisi barang, warna, isi, atau ciri khusus lainnya..." class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition" required></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-gray-100 flex justify-end">
+                    <button type="button" onclick="window.history.back()" class="px-6 py-3 rounded-lg text-gray-600 hover:bg-gray-100 font-medium mr-4 transition">Batal</button>
+                    <button type="submit" id="btnSubmit" class="px-8 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-bold shadow-lg transform hover:-translate-y-1 transition-all flex items-center gap-2">
+                        <i class="fas fa-paper-plane"></i> Kirim Laporan
+                    </button>
+                </div>
             </form>
         </div>
-    </div>
+    </main>
 
-    <footer class="simple-footer">
-        <div class="footer-content-simple">
-            <div class="footer-brand">TEMUCEPAT</div>
-            <div class="footer-links-simple">
-                <a href="beranda.html">Beranda</a>
-                <a href="beranda.html">Cari Barang</a>
-                <a href="laporkanbarang.html">Laporkan</a>
-            </div>
-            <div class="footer-copyright">
-                &copy; 2025 TEMUCEPAT. Semua hak dilindungi.
-            </div>
-        </div>
+    <footer class="bg-white border-t border-gray-200 py-8 mt-auto">
+        <div class="text-center text-xs text-gray-400">&copy; 2025 TemuCepat.</div>
     </footer>
 
     <script src="assets/js/laporkanbarang.js"></script>
+    
+    <script>
+        const uBtn = document.getElementById('userBtn');
+        const uDrop = document.getElementById('userDropdown');
+        if(uBtn) uBtn.onclick = (e) => { e.stopPropagation(); uDrop.classList.toggle('hidden'); };
+        document.addEventListener('click', (e) => { if(uBtn && !uBtn.contains(e.target)) uDrop.classList.add('hidden'); });
+        
+        document.getElementById('logoutBtn').onclick = (e) => {
+            e.preventDefault(); localStorage.clear(); window.location.href='daftar.html';
+        };
+        const u = JSON.parse(localStorage.getItem('user_temucepat') || '{}');
+        if(u.nama) document.getElementById('userName').textContent = u.nama.split(' ')[0];
+    </script>
 </body>
 </html>

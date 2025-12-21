@@ -45,40 +45,49 @@ exports.register = async (req, res) => {
 console.log("PRISMA MODELS:", Object.keys(prisma));
 
 exports.register = async (req, res) => {
-  try {
-    const { username, nama_lengkap, no_hp, password, alamat } = req.body;
+    try {
+        // === AREA DEBUGGING (CEK TERMINAL VS CODE) ===
+        console.log("-----------------------------------------");
+        console.log("1. HEADERS:", req.headers['content-type']); // Harusnya: application/json
+        console.log("2. BODY RAW:", req.body);                 // Harusnya: { nama: '...', no_hp: '...', password: '...' }
+        console.log("-----------------------------------------");
 
-    if (!username || !nama_lengkap || !no_hp || !password) {
-      return res.status(400).json({ message: 'Data wajib diisi' });
+        // Ambil data
+        const { nama, no_hp, password } = req.body;
+
+        // Validasi
+        if (!nama || !no_hp || !password) {
+            console.log("GAGAL: Salah satu data kosong/undefined");
+            return res.status(400).json({ 
+                message: 'Data wajib diisi',
+                received: req.body // Kirim balik apa yang diterima biar kelihatan di Network Tab
+            });
+        }
+
+        // Cek User Ganda
+        const existingUser = await prisma.user.findUnique({ where: { no_hp: no_hp } });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Nomor HP sudah terdaftar' });
+        }
+
+        // Hash & Simpan
+        const hashedPassword = await bcrypt.hash(password, 10);
+        // Simpan User
+        const user = await prisma.user.create({
+            data: {
+                nama,
+                no_hp,
+                username: no_hp, // <--- TAMBAHKAN INI (Pakai no_hp sebagai username)
+                password: hashedPassword,
+                role: 'USER'
+            }
+        });
+        res.status(201).json({ message: 'Registrasi berhasil', data: user });
+
+    } catch (error) {
+        console.error("Register Error:", error);
+        res.status(500).json({ message: 'Terjadi kesalahan server' });
     }
-
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        OR: [{ username }, { no_hp }]
-      }
-    });
-
-    if (existingUser) {
-      return res.status(400).json({ message: 'User sudah terdaftar' });
-    }
-
-    const hashed = await bcrypt.hash(password, 10);
-
-    await prisma.user.create({
-      data: {
-        username,
-        password: hashed,
-        nama: nama_lengkap,
-        no_hp,
-        alamat
-      }
-    });
-
-    res.status(201).json({ message: 'Registrasi berhasil' });
-  } catch (error) {
-    console.error('REGISTER ERROR:', error);
-    res.status(500).json({ message: 'Gagal registrasi' });
-  }
 };
 
 exports.login = async (req, res) => {

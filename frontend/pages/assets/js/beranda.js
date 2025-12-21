@@ -82,8 +82,58 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
 
         // Notifikasi
+        // ... kode navbar sebelumnya ...
+
+        // D. NOTIFIKASI REAL-TIME
         if (notifBtn) {
-            notifBtn.onclick = () => Swal.fire('Info', 'Belum ada notifikasi baru.', 'info');
+            notifBtn.onclick = async () => {
+                const API_NOTIF = 'http://localhost:5000/api/notifikasi';
+                
+                try {
+                    // Fetch data notifikasi
+                    const res = await fetch(API_NOTIF, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const json = await res.json();
+                    
+                    if (!json.data || json.data.length === 0) {
+                        Swal.fire('Notifikasi', 'Belum ada notifikasi baru.', 'info');
+                        return;
+                    }
+
+                    // Buat List HTML untuk SweetAlert
+                    let htmlList = '<div class="text-left flex flex-col gap-2 max-h-60 overflow-y-auto">';
+                    json.data.forEach(n => {
+                        const date = new Date(n.createdAt).toLocaleDateString('id-ID');
+                        const bg = n.isRead ? 'bg-white' : 'bg-blue-50'; // Highlight kalau belum baca
+                        
+                        htmlList += `
+                            <div class="p-3 rounded-lg border border-gray-100 ${bg} hover:bg-gray-50 transition">
+                                <p class="font-bold text-sm text-gray-800">${n.judul}</p>
+                                <p class="text-xs text-gray-600 mt-1">${n.pesan}</p>
+                                <p class="text-[10px] text-gray-400 mt-2 text-right">${date}</p>
+                            </div>
+                        `;
+                    });
+                    htmlList += '</div>';
+
+                    // Tampilkan Popup
+                    Swal.fire({
+                        title: 'Notifikasi Anda',
+                        html: htmlList,
+                        showConfirmButton: false,
+                        showCloseButton: true,
+                        width: '400px'
+                    });
+
+                    // (Opsional) Tandai sudah dibaca di background
+                    fetch(`${API_NOTIF}/read`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+
+                } catch (err) {
+                    console.error(err);
+                    Swal.fire('Error', 'Gagal memuat notifikasi', 'error');
+                }
+            };
         }
     }
 
