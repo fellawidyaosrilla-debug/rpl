@@ -1,16 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const klaimController = require('../controllers/klaimController');
-const { verifyToken } = require('../middlewares/authMiddleware'); // Wajib Login!
+
+// Pastikan path ini benar mengarah ke file controller kamu
+const klaimController = require('../controllers/klaimController'); 
+
+// Pastikan middleware auth dan upload juga di-import dengan benar
+const { verifyToken } = require('../middlewares/authMiddleware');
 const upload = require('../middlewares/uploadMiddleware');
 
-// POST: Ajukan Klaim
-// Body (form-data): id_laporan, bukti_kepemilikan, tgl_hilang, foto (file)
-router.post('/', verifyToken, upload.single('foto'), klaimController.ajukanKlaim);
+// === ROUTE AJUKAN KLAIM ===
+// Error sebelumnya terjadi di baris bawah ini karena klaimController.ajukanKlaim tidak terbaca
+router.post('/', verifyToken, upload.single('foto_bukti'), klaimController.ajukanKlaim);
 
-// GET: Lihat Riwayat Klaim Saya
-router.get('/saya', verifyToken, klaimController.getKlaimSaya);
-
-// GET: Klaim masuk untuk penemu (owner of the report)
-router.get('/masuk', verifyToken, klaimController.getClaimsForOwner);
 module.exports = router;

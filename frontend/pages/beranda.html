@@ -5,106 +5,198 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Beranda - TEMUCEPAT</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/styles.css">
-    <link rel="stylesheet" href="assets/css/beranda.css">
-    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        
+        /* Animasi Fade In */
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
-<body>
-    <header class="navbar">
-        <a href="#" class="brand">TEMU<span>CEPAT</span></a>
-        <div class="nav-right">
-            <button class="notification-btn" id="notificationBtn">
-                <i class="fas fa-bell"></i>
-                <span class="notification-badge" style="display: none;">0</span>
-            </button>
-            
-            <div class="user-menu" id="userMenu">
-                <button class="user-btn" id="userBtn">
-                    <i class="fas fa-user"></i>
-                    <span id="userName">Login</span>
-                    <i class="fas fa-chevron-down" style="font-size: 0.8rem;"></i>
-                </button>
-                
-                <div class="user-dropdown" id="userDropdown">
-                    <a href="#" class="dropdown-item logout" id="logoutBtn">
-                        <i class="fas fa-sign-out-alt"></i> Logout
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen font-sans">
+
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="beranda.html" class="text-2xl font-bold text-blue-600 tracking-tight">
+                        TEMU<span class="text-gray-900">CEPAT</span>
                     </a>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div class="hidden md:block relative">
+                        <input type="text" id="searchInput" placeholder="Cari barang..." 
+                            class="pl-10 pr-4 py-2 bg-gray-100 rounded-full text-sm focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all w-64 outline-none border-none">
+                        <i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+                    </div>
+
+                    <button id="notifBtn" class="p-2 rounded-full text-gray-500 hover:bg-gray-100 relative transition-colors">
+                        <i class="far fa-bell text-xl"></i>
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+                    </button>
+
+                    <div class="relative ml-3">
+                        <button id="userBtn" type="button" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition-all shadow-md">
+                            <i class="far fa-user"></i>
+                            <span id="userName" class="text-sm font-medium max-w-[100px] truncate">Akun</span>
+                            <i class="fas fa-chevron-down text-xs ml-1"></i>
+                        </button>
+
+                        <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
+                            <a href="laporkanbarang.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                                <i class="fas fa-plus-circle mr-2 text-blue-500"></i> Laporkan Barang
+                            </a>
+                            <div class="border-t border-gray-100 my-1"></div>
+                            <a href="#" id="logoutBtn" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                <i class="fas fa-sign-out-alt mr-2"></i> Keluar
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <section class="search-section">
-        <div class="container">
-            <h2 class="search-title">Temukan Barang Hilang Anda</h2>
-            <div class="search-container">
-                <div class="search-box">
-                    <input type="text" id="searchInput" class="search-input" placeholder="Cari barang berdasarkan nama...">
-                    <button class="search-btn" id="searchBtn">
-                        <i class="fas fa-search"></i> Cari
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="category-section">
-        <div class="container">
-            <h3 class="category-title">Kategori Barang</h3>
-            <div class="category-slider">
-                <div class="category-item active" data-category="all">Semua</div>
-                <div class="category-item" data-category="elektronik">Elektronik</div>
-                <div class="category-item" data-category="dompet">Dompet & Tas</div>
-                <div class="category-item" data-category="kunci">Kunci</div>
-                <div class="category-item" data-category="dokumen">Dokumen</div>
-            </div>
-        </div>
-    </section>
-
-    <section class="items-section">
-        <div class="container">
-            <div class="items-header">
-                <h2 class="section-title">Barang Terbaru</h2>
-                <div class="items-count" id="itemsCount">Memuat data...</div>
-            </div>
+<section class="bg-white border-b border-gray-200 py-4 sticky top-16 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h3 class="text-sm font-semibold text-gray-500 mb-3 uppercase tracking-wider">Kategori Barang</h3>
             
-            <div class="items-grid" id="itemsGrid">
-                </div>
+            <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                
+                <button class="category-btn px-5 py-2 rounded-full text-sm font-medium bg-blue-600 text-white shadow-md transition-all whitespace-nowrap hover:shadow-lg transform active:scale-95">
+                    Semua
+                </button>
+                
+                <button class="category-btn px-5 py-2 rounded-full text-sm font-medium bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all whitespace-nowrap">
+                    Elektronik
+                </button>
+                
+                <button class="category-btn px-5 py-2 rounded-full text-sm font-medium bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all whitespace-nowrap">
+                    Dompet & Tas
+                </button>
+
+                <button class="category-btn px-5 py-2 rounded-full text-sm font-medium bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all whitespace-nowrap">
+                    Kartu & Dokumen
+                </button>
+
+                <button class="category-btn px-5 py-2 rounded-full text-sm font-medium bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all whitespace-nowrap">
+                    Kunci
+                </button>
+
+                <button class="category-btn px-5 py-2 rounded-full text-sm font-medium bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all whitespace-nowrap">
+                    Helm & Kendaraan
+                </button>
+
+                <button class="category-btn px-5 py-2 rounded-full text-sm font-medium bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all whitespace-nowrap">
+                    Pakaian & Sepatu
+                </button>
+
+                <button class="category-btn px-5 py-2 rounded-full text-sm font-medium bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all whitespace-nowrap">
+                    Aksesoris (Jam/Kacamata)
+                </button>
+
+                <button class="category-btn px-5 py-2 rounded-full text-sm font-medium bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all whitespace-nowrap">
+                    Uang Tunai
+                </button>
+
+                <button class="category-btn px-5 py-2 rounded-full text-sm font-medium bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all whitespace-nowrap">
+                    Lainnya
+                </button>
+            </div>
         </div>
     </section>
 
-    <div class="floating-action-container">
-        <button class="fab-btn btn-report-found" onclick="cekAksesLapor(event)">
-            <i class="fas fa-plus-circle"></i>
-            <span>Lapor Temuan</span>
-        </button>
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <div class="flex justify-between items-end mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">Barang Terbaru</h2>
+                <p class="text-sm text-gray-500 mt-1">Daftar barang hilang dan ditemukan terkini.</p>
+            </div>
+            <span id="itemsCount" class="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+                Memuat...
+            </span>
+        </div>
+
+        <div id="itemsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 fade-in">
+            </div>
+    </main>
+
+    <div class="fixed bottom-8 right-8 flex flex-col gap-3 z-40 group">
+        <div class="flex flex-col gap-3 mb-2 transition-all duration-300 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto">
+            <button onclick="cekAksesLapor(event, 'KEHILANGAN')" class="flex items-center justify-end gap-3">
+                <span class="bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-sm">Lapor Hilang</span>
+                <div class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors">
+                    <i class="fas fa-search"></i>
+                </div>
+            </button>
+            <button onclick="cekAksesLapor(event, 'DITEMUKAN')" class="flex items-center justify-end gap-3">
+                <span class="bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-sm">Lapor Temuan</span>
+                <div class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center shadow-lg hover:bg-green-600 transition-colors">
+                    <i class="fas fa-hand-holding-heart"></i>
+                </div>
+            </button>
+        </div>
         
-        <div class="fab-divider"></div>
-        
-        <button class="fab-btn btn-report-lost" onclick="cekAksesLapor(event)">
-            <i class="fas fa-search-location"></i>
-            <span>Lapor Hilang</span>
+        <button class="w-14 h-14 rounded-full bg-blue-600 text-white shadow-xl flex items-center justify-center text-2xl hover:bg-blue-700 transition-transform hover:scale-110">
+            <i class="fas fa-plus"></i>
         </button>
     </div>
 
-    <footer class="simple-footer">
-        <div class="footer-content-simple">
-            <div class="footer-brand">TEMUCEPAT</div>
-            <div class="footer-links-simple">
-                <a href="beranda.html">Beranda</a>
-                <a href="beranda.html">Cari Barang</a>
-                <a href="laporkanbarang.html">Laporkan</a>
+    <footer class="bg-white border-t border-gray-200 py-8 mt-10">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <span class="text-xl font-bold text-blue-600">TEMU<span class="text-gray-900">CEPAT</span></span>
+            <div class="flex justify-center gap-6 my-4 text-sm text-gray-500">
+                <a href="beranda.html" class="hover:text-blue-600">Beranda</a>
+                <a href="laporkanbarang.html" class="hover:text-blue-600">Lapor</a>
+                <a href="#" class="hover:text-blue-600">Bantuan</a>
             </div>
-            <div class="footer-copyright">
-                &copy; 2025 TEMUCEPAT. Semua hak dilindungi.
-            </div>
+            <p class="text-xs text-gray-400">&copy; 2025 TemuCepat.</p>
         </div>
     </footer>
 
     <script src="assets/js/beranda.js"></script>
+
+    <script>
+        function cekAksesLapor(e, type) {
+            e.preventDefault();
+            const token = localStorage.getItem('token_temucepat');
+            if (token) {
+                // Simpan tipe laporan jika perlu, atau langsung ke halaman
+                window.location.href = 'laporkanbarang.html';
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Login Diperlukan',
+                    text: 'Anda harus login untuk membuat laporan.',
+                    showCancelButton: true,
+                    confirmButtonText: 'Login',
+                    cancelButtonText: 'Batal'
+                }).then((res) => {
+                    if (res.isConfirmed) window.location.href = 'daftar.html';
+                });
+            }
+        }
+    </script>
 </body>
 </html>

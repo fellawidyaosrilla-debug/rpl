@@ -1,31 +1,33 @@
 const jwt = require('jsonwebtoken');
 
 exports.verifyToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ message: 'Token tidak ada' });
+  }
 
-    if (!token) return res.status(401).json({ message: "Token Hilang" });
+  const token = authHeader.split(' ')[1];
 
-    // Gunakan fallback secret yang sama seperti di login jika ENV tidak diset
-    const secret = process.env.JWT_SECRET || 'temu_cepat_secret_key_2025';
-
-    jwt.verify(token, secret, (err, decoded) => {
-        if (err) return res.status(403).json({ message: "Token Tidak Valid", error: err.message });
-        
-        // Simpan data user hasil decode (id & role) ke req.user
-        req.user = decoded; 
-        next();
-    });
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // { id, role }
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Token tidak valid' });
+  }
 };
 
 exports.isAdmin = (req, res, next) => {
-    // Mengecek apakah role yang dibawa token adalah ADMIN
-    if (req.user && req.user.role === 'ADMIN') {
-        next();
-    } else {
-        return res.status(403).json({ 
-            message: "Akses Ditolak: Role Anda bukan ADMIN!",
-            currentRole: req.user ? req.user.role : 'Tidak Ada'
-        });
-    }
+  if (req.user.role !== 'ADMIN') {
+    return res.status(403).json({ message: 'Akses khusus admin' });
+  }
+  next();
+};
+
+exports.isAdmin = (req, res, next) => {
+  if (req.user && req.user.role === 'ADMIN') {
+    next();
+  } else {
+    return res.status(403).json({ message: 'Akses ditolak (Admin only)' });
+  }
 };

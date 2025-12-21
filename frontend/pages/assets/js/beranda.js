@@ -1,184 +1,183 @@
-// ==========================================
-// 1. FUNGSI CEK AKSES LAPOR (AUTH GUARD)
-// Ditaruh di luar agar bisa dipanggil HTML onclick
-// ==========================================
-function cekAksesLapor(event) {
-    if(event) event.preventDefault(); // Jangan pindah halaman dulu
-
-    const token = localStorage.getItem('token_temucepat');
-
-    if (token) {
-        // A. SUDAH LOGIN -> Masuk ke halaman lapor
-        // (Pastikan file laporannya sudah ada, misal laporkan.html)
-        window.location.href = 'laporkanbarang.html'; 
-    } else {
-        // B. BELUM LOGIN -> Tampilkan Peringatan & Arahkan ke DAFTAR.HTML
-        Swal.fire({
-            icon: 'warning',
-            title: 'Belum Login',
-            text: 'Anda harus login terlebih dahulu untuk melaporkan barang!',
-            confirmButtonText: 'Login / Daftar',
-            confirmButtonColor: '#3b82f6',
-            showCancelButton: true,
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // --- REVISI DI SINI: ARAHKAN KE DAFTAR.HTML ---
-                window.location.href = 'DAFTAR.html'; 
-            }
-        });
-    }
-}
-
-// ==========================================
-// 2. LOGIKA UTAMA SAAT HALAMAN DIMUAT
-// ==========================================
 document.addEventListener('DOMContentLoaded', async function() {
     
     const API_URL = 'http://localhost:5000/api/laporan';
+    const BACKEND_URL = 'http://localhost:5000';
+    
+    // Elements
     const itemsGrid = document.getElementById('itemsGrid');
     const itemsCount = document.getElementById('itemsCount');
+    const searchInput = document.getElementById('searchInput'); 
+    const categoryButtons = document.querySelectorAll('.category-btn'); 
     
-    // Element Navbar
-    const userBtn = document.getElementById('userBtn');
-    const userName = document.getElementById('userName');
-    const userDropdown = document.getElementById('userDropdown');
-    const logoutBtn = document.getElementById('logoutBtn');
+    // State
+    let currentCategory = 'Semua';
+    let currentSearch = '';
+    let allData = []; 
 
-    // --- A. CEK STATUS LOGIN (Ubah Tampilan Navbar) ---
-    const token = localStorage.getItem('token_temucepat');
-    const user = JSON.parse(localStorage.getItem('user_temucepat') || '{}');
+    // =========================================
+    // 1. SETUP NAVBAR & LOGOUT (FIXED)
+    // =========================================
+    function setupNavbar() {
+        const userBtn = document.getElementById('userBtn');
+        const userName = document.getElementById('userName');
+        const userDropdown = document.getElementById('userDropdown');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const notifBtn = document.getElementById('notifBtn');
 
-    if (token && user.nama) {
-        // User Sedang Login
-        userName.textContent = user.nama.split(' ')[0]; // Ambil nama depan
-        userBtn.onclick = function() {
-            userDropdown.classList.toggle('show'); // Tampilkan dropdown logout
-        };
-    } else {
-        // User Belum Login
-        userName.textContent = "Login";
-        userBtn.onclick = function() {
-            // --- REVISI DI SINI: ARAHKAN KE DAFTAR.HTML ---
-            window.location.href = 'DAFTAR.html'; 
-        };
-    }
+        const token = localStorage.getItem('token_temucepat');
+        const userStr = localStorage.getItem('user_temucepat');
+        let user = {};
 
-    // --- B. LOGOUT LOGIC ---
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            Swal.fire({
-                title: 'Yakin ingin keluar?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, Logout',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    localStorage.removeItem('token_temucepat');
-                    localStorage.removeItem('user_temucepat');
-                    // Refresh halaman atau kembalikan ke landing page
-                    window.location.reload(); 
-                }
-            });
-        });
-    }
+        try { user = JSON.parse(userStr || '{}'); } catch (e) {}
 
-    // Notification button & badge
-    const notificationBtn = document.getElementById('notificationBtn');
-    const notificationBadge = document.querySelector('.notification-badge');
-
-    function updateNotifBadge(count) {
-        if (!notificationBadge) return;
-        if (count && count > 0) {
-            notificationBadge.style.display = 'inline-block';
-            notificationBadge.textContent = count > 99 ? '99+' : String(count);
+        // --- Logic Tampilan ---
+        if (token && user.nama) {
+            // Sudah Login
+            if (userName) userName.textContent = user.nama.split(' ')[0];
+            
+            // Dropdown Toggle
+            if (userBtn && userDropdown) {
+                userBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('hidden');
+                };
+            }
         } else {
-            notificationBadge.style.display = 'none';
-            notificationBadge.textContent = '';
+            // Belum Login
+            if (userName) userName.textContent = "Masuk";
+            if (userBtn) {
+                userBtn.onclick = () => window.location.href = 'daftar.html';
+            }
         }
-    }
 
-    async function loadNotifCount() {
-        const tokenLocal = localStorage.getItem('token_temucepat');
-        if (!tokenLocal) { updateNotifBadge(0); return; }
-        try {
-            const res = await fetch('http://localhost:5000/api/notifikasi', {
-                headers: { 'Authorization': `Bearer ${tokenLocal}` }
+        // --- Logic Logout (Super Robust) ---
+        if (logoutBtn) {
+            // Hapus event listener lama dengan cloneNode
+            const newLogoutBtn = logoutBtn.cloneNode(true);
+            logoutBtn.parentNode.replaceChild(newLogoutBtn, logoutBtn);
+
+            newLogoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Yakin ingin keluar?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, Keluar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        localStorage.clear();
+                        window.location.replace('daftar.html');
+                    }
+                });
             });
-            if (!res.ok) { updateNotifBadge(0); return; }
-            const j = await res.json();
-            const notifs = j.data || [];
-            const unread = notifs.filter(n => !n.is_read).length;
-            updateNotifBadge(unread);
-        } catch (err) {
-            console.warn('Load notif count failed', err);
-            updateNotifBadge(0);
+        }
+
+        // Tutup dropdown jika klik di luar
+        document.addEventListener('click', (e) => {
+            if (userBtn && userDropdown && !userBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+                userDropdown.classList.add('hidden');
+            }
+        });
+
+        // Notifikasi
+        if (notifBtn) {
+            notifBtn.onclick = () => Swal.fire('Info', 'Belum ada notifikasi baru.', 'info');
         }
     }
 
-    if (notificationBtn) {
-        notificationBtn.addEventListener('click', function() {
-            const tokenLocal = localStorage.getItem('token_temucepat');
-            if (!tokenLocal) {
-                Swal.fire({ icon: 'warning', title: 'Perlu Login', text: 'Silakan login untuk melihat notifikasi.' }).then(() => window.location.href = 'DAFTAR.html');
+    // =========================================
+    // 2. LOAD DATA
+    // =========================================
+    async function loadBarang() {
+        try {
+            if(itemsGrid) itemsGrid.innerHTML = '<p class="text-center col-span-full py-10">Memuat data...</p>';
+
+            const response = await fetch(API_URL);
+            const json = await response.json();
+            
+            if (!json.data || json.data.length === 0) {
+                allData = [];
+                renderEmpty();
                 return;
             }
-            window.location.href = 'notifikasi.html';
-        });
+
+            allData = json.data; 
+            renderItems();
+
+        } catch (error) {
+            console.error('Error:', error);
+            if(itemsGrid) itemsGrid.innerHTML = '<p class="text-center text-red-500 col-span-full py-10">Gagal memuat data.</p>';
+        }
     }
 
-    // --- C. LOAD DATA BARANG DARI BACKEND ---
-    let allItems = []; // Cache semua item untuk filtering/search
-
-    function renderItems(list) {
+    // =========================================
+    // 3. RENDER ITEMS
+    // =========================================
+    function renderItems() {
+        if (!itemsGrid) return;
         itemsGrid.innerHTML = '';
-        if (!list || list.length === 0) {
-            itemsGrid.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
-                    <i class="fas fa-box-open" style="font-size: 48px; color: #ccc;"></i>
-                    <p style="margin-top: 10px; color: #666;">Belum ada barang dilaporkan.</p>
-                </div>`;
-            itemsCount.textContent = "0 barang tersedia";
+
+        // Filter
+        const filteredData = allData.filter(item => {
+            const matchCat = currentCategory === 'Semua' || (item.kategori && item.kategori === currentCategory);
+            const matchSearch = item.nama_barang.toLowerCase().includes(currentSearch.toLowerCase());
+            return matchCat && matchSearch;
+        });
+
+        // Update Count
+        if(itemsCount) itemsCount.textContent = `${filteredData.length} barang tersedia`;
+
+        // Empty State
+        if (filteredData.length === 0) {
+            renderEmpty();
             return;
         }
 
-        itemsCount.textContent = `${list.length} barang tersedia`;
-
-        list.forEach(item => {
-            const isFound = item.jenis_laporan === 'PENEMUAN'; 
-            const statusClass = isFound ? 'status-found' : 'status-lost';
-            const statusText = isFound ? 'DITEMUKAN' : 'HILANG';
-
-            const dateObj = new Date(item.tgl_kejadian);
+        // Loop Data
+        filteredData.forEach(item => {
+            // Status Logic
+            const isFound = item.jenis_laporan === 'DITEMUKAN'; 
+            const statusClass = isFound ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200';
+            const statusText = isFound ? 'DITEMUKAN' : 'HILANG'; 
+            
+            // Date Logic
+            const dateObj = new Date(item.created_at || item.tgl_kejadian);
             const dateStr = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 
-            const imgUrl = item.foto_barang 
-                ? `http://localhost:5000/${item.foto_barang}` 
-                : 'https://placehold.co/600x400?text=No+Image';
+            // Image Logic
+            const imgUrl = item.foto ? `${BACKEND_URL}/${item.foto}` : 'https://placehold.co/600x400?text=No+Image';
+            
+            // Location Logic
+            const lokasiFix = item.lokasi || item.lokasi_detail || 'Lokasi tidak diketahui';
 
             const card = `
-                <div class="item-card">
-                    <div class="item-image-container">
-                        <img src="${imgUrl}" alt="${item.nama_barang}" class="item-image">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col h-full group">
+                    <div class="h-48 relative overflow-hidden bg-gray-50">
+                        <img src="${imgUrl}" alt="${item.nama_barang}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <span class="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold ${statusClass} uppercase border shadow-sm z-10">
+                            ${statusText}
+                        </span>
                     </div>
-                    <div class="item-content">
-                        <div class="item-status ${statusClass}">${statusText}</div>
-                        <h3 class="item-title">${item.nama_barang}</h3>
-                        <div class="item-meta">
-                            <div class="item-location">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span>${item.lokasi_detail}</span>
-                            </div>
-                            <div class="item-date">
-                                <i class="far fa-clock"></i>
-                                <span>${dateStr}</span>
-                            </div>
+
+                    <div class="p-4 flex flex-col flex-1">
+                        <h3 class="font-bold text-lg text-gray-800 mb-1 truncate" title="${item.nama_barang}">${item.nama_barang}</h3>
+                        
+                        <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                             <i class="fas fa-map-marker-alt text-red-400 flex-shrink-0"></i> 
+                             <span class="truncate">${lokasiFix}</span>
                         </div>
-                        <div class="item-actions">
-                            <button class="detail-btn" onclick="window.location.href='detail.html?id=${item.id_laporan}'">
-                                <i class="fas fa-info-circle"></i> Lihat Detail
+                        
+                        <div class="flex items-center gap-2 text-xs text-gray-400 mb-4">
+                             <i class="far fa-clock flex-shrink-0"></i> 
+                             <span>${dateStr}</span>
+                        </div>
+                        
+                        <div class="mt-auto">
+                            <button onclick="window.location.href='detail.html?id=${item.id || item.id_laporan}'" 
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                                Lihat Detail
                             </button>
                         </div>
                     </div>
@@ -188,51 +187,49 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
 
-    async function loadBarang() {
-        try {
-            const response = await fetch(API_URL);
-            const json = await response.json();
-
-            allItems = json.data || [];
-            renderItems(allItems);
-
-        } catch (error) {
-            console.error(error);
-            itemsGrid.innerHTML = '<p style="text-align:center; color:red;">Gagal memuat data. Cek Backend.</p>';
+    function renderEmpty() {
+        if(itemsGrid) {
+            itemsGrid.innerHTML = `
+                <div class="col-span-full text-center py-16 text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                    <i class="fas fa-box-open text-5xl mb-4 text-gray-300"></i>
+                    <p class="text-lg font-medium text-gray-500">Tidak ada barang yang cocok.</p>
+                </div>`;
         }
+        if(itemsCount) itemsCount.textContent = "0 barang tersedia";
     }
 
-    // Filtering: Category buttons
-    const categoryItems = document.querySelectorAll('.category-item');
-    categoryItems.forEach(ci => ci.addEventListener('click', function() {
-        categoryItems.forEach(x => x.classList.remove('active'));
-        this.classList.add('active');
-        const cat = this.dataset.category;
-        if (cat === 'all') {
-            renderItems(allItems);
-        } else {
-            const filtered = allItems.filter(i => i.kategori && i.kategori.toLowerCase().includes(cat.toLowerCase()));
-            renderItems(filtered);
-        }
-    }));
+    // =========================================
+    // 4. EVENT LISTENERS
+    // =========================================
+    
+    // Search
+    if(searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            currentSearch = e.target.value;
+            renderItems();
+        });
+    }
 
-    // Search handling
-    const searchInput = document.getElementById('searchInput');
-    const searchBtn = document.getElementById('searchBtn');
-    searchBtn.addEventListener('click', () => {
-        const q = (searchInput.value || '').toLowerCase().trim();
-        if (!q) return renderItems(allItems);
-        const filtered = allItems.filter(i => i.nama_barang && i.nama_barang.toLowerCase().includes(q));
-        renderItems(filtered);
-    });
+    // Kategori
+    if(categoryButtons) {
+        categoryButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryButtons.forEach(b => {
+                    b.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
+                    b.classList.add('bg-white', 'text-gray-600', 'hover:bg-gray-50');
+                });
+                btn.classList.remove('bg-white', 'text-gray-600', 'hover:bg-gray-50');
+                btn.classList.add('bg-blue-600', 'text-white', 'shadow-md');
 
-    // Jalankan Load Barang
+                currentCategory = btn.innerText.trim(); 
+                renderItems();
+            });
+        });
+    }
+
+    // =========================================
+    // 5. INIT
+    // =========================================
+    setupNavbar();
     loadBarang();
-
-    // Tutup dropdown kalau klik di luar
-    document.addEventListener('click', function(e) {
-        if (!userBtn.contains(e.target) && !userDropdown.contains(e.target)) {
-            userDropdown.classList.remove('show');
-        }
-    });
 });

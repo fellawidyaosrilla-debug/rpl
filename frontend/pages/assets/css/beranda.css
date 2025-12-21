@@ -780,15 +780,6 @@
             background-color: rgba(239, 68, 68, 0.1);
         }
 
-        /* Claim card styling */
-        .claim-card { border-radius: 12px; background: white; transition: box-shadow 0.2s ease; }
-        .claim-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-4px); }
-        .btn { padding: 8px 14px; border-radius: 8px; border: none; cursor: pointer; font-weight:600; }
-        .btn.btn-primary { background: var(--primary); color: #fff; }
-        .btn.btn-danger { background: #ef4444; color: #fff; }
-        .btn[disabled], .btn.disabled { opacity: 0.6; cursor: not-allowed; }
-
-
         /* Responsif untuk layar kecil (HP) */
         @media (max-width: 480px) {
             .floating-action-container {

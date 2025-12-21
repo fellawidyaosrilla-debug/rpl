@@ -1,36 +1,32 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    let notifications = [];
-    const token = localStorage.getItem('token_temucepat');
-    const user = JSON.parse(localStorage.getItem('user_temucepat') || '{}');
-
-    async function loadNotifications() {
-        try {
-            const res = await fetch('http://localhost:5000/api/notifikasi', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (!res.ok) throw new Error('Gagal mengambil notifikasi');
-            const json = await res.json();
-            notifications = json.data.map(n => ({
-                id: n.id_notifikasi,
-                title: n.judul,
-                message: n.pesan,
-                type: n.tipe.toLowerCase(),
-                date: new Date(n.created_at).toLocaleString('id-ID'),
-                unread: !n.is_read,
-                raw: n
-            }));
-            renderNotifications();
-        } catch (err) {
-            console.error('Load notifikasi error', err);
-            notifications = [];
-            renderNotifications();
+    // === DATA SIMULASI (Dummy Data) ===
+    let notifications = [
+        {
+            id: 1,
+            title: "Barang Cocok Ditemukan!",
+            message: "Sistem menemukan barang yang mungkin milik Anda: 'Kunci Motor Yamaha' di Gedung G. Cek sekarang!",
+            type: "match", // match, system, claim
+            date: "Baru saja",
+            unread: true
+        },
+        {
+            id: 2,
+            title: "Klaim Disetujui",
+            message: "Selamat! Klaim Anda untuk 'Dompet Coklat' telah disetujui oleh penemu. Silakan hubungi nomor WA penemu.",
+            type: "claim",
+            date: "2 Jam lalu",
+            unread: true
+        },
+        {
+            id: 3,
+            title: "Update Sistem",
+            message: "Kami telah memperbarui kebijakan privasi aplikasi TemuCepat. Silakan baca di pengaturan.",
+            type: "system",
+            date: "Kemarin",
+            unread: false
         }
-    }
-
-    // Load at start
-    if (token) loadNotifications();
-
+    ];
 
     const notifList = document.getElementById('notifList');
     const emptyState = document.getElementById('emptyState');
@@ -95,104 +91,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // === ACTIONS ===
     
     // 1. Buka Detail & Tandai Dibaca
-    window.openDetail = async function(id) {
+    window.openDetail = function(id) {
         const notif = notifications.find(n => n.id === id);
         if (!notif) return;
 
-        // Tandai sebagai dibaca di server (simple workaround: re-fetch list after open)
-        try {
-            await fetch(`http://localhost:5000/api/notifikasi/mark-read`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ id_notifikasi: notif.id })
-            });
-        } catch (err) {
-            console.warn('Mark read failed', err);
-        }
-
-        // Re-load latest notifications so read status is updated
-        await loadNotifications();
-
-        // Re-find notif after reload to get full raw data
-        const fresh = notifications.find(n => n.id === id);
-        if (!fresh) return;
+        // Tandai sebagai dibaca di data
+        notif.unread = false;
+        renderNotifications(); // Re-render untuk hilangkan tanda merah
 
         // Isi Modal
-        modalTitle.textContent = fresh.title;
-        modalMessage.textContent = fresh.message;
-        modalDate.innerHTML = `<i class="far fa-clock"></i> ${fresh.date}`;
-        modalType.textContent = fresh.type.toUpperCase();
-
-        // Jika tipe claim dan penerima adalah penemu, tampilkan tombol aksi
-        const isClaim = fresh.type === 'claim';
-        const actionArea = document.getElementById('modalActions');
-        actionArea.innerHTML = '';
-        if (isClaim) {
-            const klaimId = fresh.raw.id_klaim;
-            // Tombol Konfirmasi
-            const btnConfirm = document.createElement('button');
-            btnConfirm.className = 'btn btn-primary mr-2';
-            btnConfirm.textContent = 'Konfirmasi & Kirim Nomor';
-            btnConfirm.onclick = async function() {
-                try {
-                    const res = await fetch('http://localhost:5000/api/notifikasi/confirm-claim', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                        body: JSON.stringify({ id_klaim: klaimId })
-                    });
-                    const j = await res.json();
-                    if (res.ok) {
-                        Swal.fire({ icon: 'success', title: 'Berhasil', text: j.message });
-                        closeModalFunc();
-                        loadNotifications();
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'Gagal', text: j.message || 'Terjadi kesalahan' });
-                    }
-                } catch (err) {
-                    console.error(err);
-                    Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal menghubungi server.' });
-                }
-            };
-
-            // Tombol Tolak
-            const btnReject = document.createElement('button');
-            btnReject.className = 'btn btn-danger';
-            btnReject.textContent = 'Tolak Klaim';
-            btnReject.onclick = async function() {
-                const { isConfirmed } = await Swal.fire({ title: 'Tolak Klaim', text: 'Yakin menolak klaim ini?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Ya, Tolak' });
-                if (!isConfirmed) return;
-                try {
-                    const res = await fetch('http://localhost:5000/api/notifikasi/reject-claim', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                        body: JSON.stringify({ id_klaim: klaimId })
-                    });
-                    const j = await res.json();
-                    if (res.ok) {
-                        Swal.fire({ icon: 'success', title: 'Berhasil', text: j.message });
-                        closeModalFunc();
-                        loadNotifications();
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'Gagal', text: j.message || 'Terjadi kesalahan' });
-                    }
-                } catch (err) {
-                    console.error(err);
-                    Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal menghubungi server.' });
-                }
-            };
-
-            actionArea.appendChild(btnConfirm);
-            actionArea.appendChild(btnReject);
-        }
-
-        // Set Lihat Barang Terkait button
-        const modalActionBtn = document.getElementById('modalActionBtn');
-        modalActionBtn.onclick = function() {
-            if (fresh.raw && fresh.raw.id_laporan) {
-                window.location.href = `detail.html?id=${fresh.raw.id_laporan}`;
-            }
-        };
-
+        modalTitle.textContent = notif.title;
+        modalMessage.textContent = notif.message;
+        modalDate.innerHTML = `<i class="far fa-clock"></i> ${notif.date}`;
+        modalType.textContent = notif.type.toUpperCase();
+        
         // Show Modal
         modal.classList.add('show');
     };
@@ -207,23 +119,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // 3. Tandai Semua Dibaca
-    markAllReadBtn.addEventListener('click', async () => {
-        try {
-            const res = await fetch('http://localhost:5000/api/notifikasi/mark-all-read', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
-            });
-            if (res.ok) {
-                Swal.fire({ icon: 'success', title: 'Sukses', text: 'Semua notifikasi ditandai sebagai dibaca' });
-                loadNotifications();
-            } else {
-                const j = await res.json();
-                Swal.fire({ icon: 'error', title: 'Gagal', text: j.message || 'Terjadi kesalahan' });
-            }
-        } catch (err) {
-            console.error(err);
-            Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal menghubungi server.' });
-        }
+    markAllReadBtn.addEventListener('click', () => {
+        notifications.forEach(n => n.unread = false);
+        renderNotifications();
+        alert("Semua notifikasi telah ditandai sebagai dibaca.");
     });
 
     // 4. Tutup Modal

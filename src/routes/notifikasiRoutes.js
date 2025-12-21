@@ -3,7 +3,7 @@ const router = express.Router();
 const { verifyToken } = require('../middlewares/authMiddleware');
 const notifikasiController = require('../controllers/notifikasiController');
 
-router.get('/', verifyToken, notifikasiController.getMyNotifikasi);
+router.get('/', verifyToken, notifikasiController.getNotifSaya);
 router.post('/confirm-claim', verifyToken, notifikasiController.confirmClaim);
 router.post('/reject-claim', verifyToken, notifikasiController.rejectClaim);
 router.post('/mark-read', verifyToken, notifikasiController.markRead);

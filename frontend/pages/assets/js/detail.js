@@ -1,173 +1,112 @@
-document.addEventListener('DOMContentLoaded', async function() {
-  const params = new URLSearchParams(window.location.search);
-  const id = params.get('id');
-  const API_BASE = 'http://localhost:5000/api/laporan';
-  const claimApi = 'http://localhost:5000/api/klaim';
+document.addEventListener('DOMContentLoaded', async () => {
+    
+    // --- SETUP AWAL ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const idLaporan = urlParams.get('id');
+    const token = localStorage.getItem('token_temucepat');
+    const API_URL = `http://localhost:5000/api/laporan/${idLaporan}`;
+    const KLAIM_URL = 'http://localhost:5000/api/laporan/klaim';
+    const BACKEND_URL = 'http://localhost:5000';
 
-  const elLoading = document.getElementById('loading');
-  const elContent = document.getElementById('content');
-  const elNama = document.getElementById('namaBarang');
-  const elFoto = document.getElementById('fotoBarang');
-  const elDesc = document.getElementById('deskripsi');
-  const elLokasi = document.getElementById('lokasi');
-  const elTgl = document.getElementById('tgl');
-  const elPelapor = document.getElementById('pelapor');
-  const elStatus = document.getElementById('statusBadge');
-  const claimBtn = document.getElementById('claimBtn');
-
-  if (!id) {
-    elLoading.textContent = 'ID laporan tidak ditemukan pada URL.';
-    return;
-  }
-
-  try {
-    const res = await fetch(`${API_BASE}/${id}`);
-    const json = await res.json();
-
-    if (!res.ok) {
-      elLoading.textContent = json.message || 'Gagal memuat laporan.';
-      return;
-    }
-
-    const item = json.data;
-
-    elNama.textContent = item.nama_barang || '—';
-    elFoto.src = item.foto_barang ? `http://localhost:5000/${item.foto_barang}` : 'https://placehold.co/900x400?text=No+Image';
-    elDesc.textContent = item.deskripsi || '-';
-    elLokasi.textContent = item.lokasi_detail || '-';
-    elTgl.textContent = item.tgl_kejadian ? new Date(item.tgl_kejadian).toLocaleDateString('id-ID') : '-';
-    // Jangan tampilkan nama atau nomor HP pelapor untuk privasi
-    elPelapor.textContent = 'Informasi pelapor disembunyikan untuk privasi.';
-    elStatus.innerHTML = item.status === 'DIPUBLIKASIKAN' ? '<span class="status-found">DIPUBLIKASIKAN</span>' : `<span class="status-lost">${item.status}</span>`;
-
-    elLoading.style.display = 'none';
-    elContent.style.display = 'block';
-
-    // If not published, disable claim button
-    if (item.status !== 'DIPUBLIKASIKAN') {
-      claimBtn.disabled = true;
-      claimBtn.textContent = 'Tidak dapat diklaim';
-      claimBtn.classList.add('disabled');
-      return;
-    }
-
-    // If user already claimed this report, disable button
-    const tokenLocal = localStorage.getItem('token_temucepat');
-    if (tokenLocal) {
-      try {
-        const myClaimsRes = await fetch('http://localhost:5000/api/klaim/saya', {
-          headers: { 'Authorization': `Bearer ${tokenLocal}` }
-        });
-        if (myClaimsRes.ok) {
-          const myClaimsJson = await myClaimsRes.json();
-          const existing = myClaimsJson.data.find(c => c.id_laporan === parseInt(id));
-          if (existing) {
-            claimBtn.disabled = true;
-            claimBtn.textContent = 'Sudah Mengajukan Klaim';
-            claimBtn.classList.add('disabled');
-            return;
-          }
-        }
-      } catch (err) {
-        console.error('Cek klaim saya gagal', err);
-      }
-    }
-
-    // Back button handler
-    const backBtn = document.getElementById('backBtn');
-    backBtn.addEventListener('click', function() {
-      window.history.back();
-    });
-
-    // Inline Claim Form logic (show, preview, submit, cancel)
-    const claimForm = document.getElementById('claimForm');
-    const cfFile = document.getElementById('cf-file');
-    const cfPreview = document.getElementById('cf-preview');
-    const cfSubmit = document.getElementById('cf-submit');
-    const cfCancel = document.getElementById('cf-cancel');
-
-    claimBtn.addEventListener('click', function() {
-      const token = localStorage.getItem('token_temucepat');
-      if (!token) {
-        Swal.fire({ icon: 'warning', title: 'Perlu Login', text: 'Silakan login untuk mengajukan klaim.' }).then(() => window.location.href = 'DAFTAR.html');
+    if (!idLaporan) {
+        window.location.href = 'beranda.html';
         return;
-      }
-      // Navigate to full-page claim form for a better UX
-      window.location.href = `ajukan_klaim.html?id=${id}`;
-    });
+    }
 
-    // Preview selected file
-    cfFile.addEventListener('change', function() {
-      if (cfFile.files && cfFile.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          cfPreview.src = e.target.result;
-          cfPreview.style.display = 'block';
-        };
-        reader.readAsDataURL(cfFile.files[0]);
-      } else {
-        cfPreview.src = '';
-        cfPreview.style.display = 'none';
-      }
-    });
+    // --- FETCH DETAIL BARANG ---
+    try {
+        const response = await fetch(API_URL);
+        const json = await response.json();
+        const data = json.data;
 
-    // Cancel claim form
-    cfCancel.addEventListener('click', function() {
-      claimForm.style.display = 'none';
-      claimBtn.textContent = 'Klaim Barang Ini';
-    });
+        // Render Data Barang
+        document.getElementById('detailFoto').src = data.foto ? `${BACKEND_URL}/${data.foto}` : 'https://placehold.co/600x400';
+        document.getElementById('detailNama').innerText = data.nama_barang;
+        document.getElementById('detailKategori').innerText = data.kategori || 'Umum';
+        document.getElementById('detailLokasi').innerText = data.lokasi || data.lokasi_detail;
+        document.getElementById('detailDeskripsi').innerText = data.deskripsi || '-';
+        document.getElementById('detailTanggal').innerText = new Date(data.created_at).toLocaleDateString('id-ID');
 
-    // Submit claim
-    cfSubmit.addEventListener('click', async function() {
-      const token = localStorage.getItem('token_temucepat');
-      if (!token) { Swal.fire({ icon: 'warning', title: 'Perlu Login', text: 'Silakan login untuk mengajukan klaim.' }).then(() => window.location.href = 'DAFTAR.html'); return; }
-
-      const bukti = document.getElementById('cf-bukti').value;
-      const tgl = document.getElementById('cf-tgl').value;
-      const krono = document.getElementById('cf-kronologi').value;
-
-      if (!bukti || !tgl) {
-        Swal.fire({ icon: 'warning', title: 'Form belum lengkap', text: 'Isi minimal deskripsi bukti dan tanggal kehilangan' });
-        return;
-      }
-
-      try {
-        const fd = new FormData();
-        fd.append('id_laporan', parseInt(id));
-        fd.append('bukti_kepemilikan', bukti);
-        fd.append('tgl_hilang', tgl);
-        fd.append('kronologi', krono || '');
-        if (cfFile.files && cfFile.files[0]) fd.append('foto', cfFile.files[0]);
-
-        const response = await fetch(claimApi, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` },
-          body: fd
-        });
-
-        const body = await response.json();
-        if (response.ok) {
-          Swal.fire({ icon: 'success', title: 'Klaim Diajukan', text: body.message });
-          claimForm.style.display = 'none';
-          claimBtn.disabled = true;
-          claimBtn.textContent = 'Telah Diklaim';
+        // Badge Status
+        const badge = document.getElementById('detailBadge');
+        badge.innerText = data.jenis_laporan || 'KEHILANGAN';
+        if (data.jenis_laporan === 'DITEMUKAN') {
+            badge.className = 'absolute top-4 left-4 px-4 py-2 rounded-full text-sm font-bold bg-green-100 text-green-700';
         } else {
-          Swal.fire({ icon: 'error', title: 'Gagal', text: body.message || 'Terjadi kesalahan' });
-          if (response.status === 401 || response.status === 403) {
-            localStorage.removeItem('token_temucepat');
-            localStorage.removeItem('user_temucepat');
-            window.location.href = 'DAFTAR.html';
-          }
+            badge.className = 'absolute top-4 left-4 px-4 py-2 rounded-full text-sm font-bold bg-red-100 text-red-700';
         }
 
-      } catch (err) {
-        console.error(err);
-        Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal menghubungi server.' });
-      }
-    });
+        // Tampilkan konten
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('detailContent').classList.remove('hidden');
 
-  } catch (error) {
-    console.error(error);
-    elLoading.textContent = 'Terjadi kesalahan saat memuat data.';
-  }
+    } catch (err) {
+        console.error(err);
+        alert('Gagal memuat data');
+    }
+
+    // --- LOGIC MODAL & KLAIM ---
+    const modal = document.getElementById('modalKlaim');
+    const btnKlaim = document.getElementById('btnKlaim');
+    const btnClose = document.getElementById('btnCloseModal');
+    const formKlaim = document.getElementById('formKlaim');
+    const inputFile = document.getElementById('klaimFoto');
+
+    // Buka Modal
+    btnKlaim.onclick = () => {
+        if (!token) {
+            Swal.fire({ icon: 'warning', title: 'Login Dulu', text: 'Anda harus login untuk mengajukan klaim.' })
+                .then(() => window.location.href = 'daftar.html');
+            return;
+        }
+        modal.classList.remove('hidden');
+    };
+
+    // Tutup Modal
+    btnClose.onclick = () => modal.classList.add('hidden');
+
+    // Tampilkan Nama File saat Upload
+    inputFile.onchange = () => {
+        if(inputFile.files[0]) document.getElementById('fileName').innerText = inputFile.files[0].name;
+    };
+
+    // SUBMIT FORM KLAIM
+    formKlaim.onsubmit = async (e) => {
+        e.preventDefault();
+
+        // Loading State
+        const submitBtn = formKlaim.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+        submitBtn.disabled = true;
+
+        try {
+            const formData = new FormData();
+            formData.append('id_laporan', idLaporan);
+            formData.append('deskripsi', document.getElementById('klaimDeskripsi').value);
+            formData.append('kronologi', document.getElementById('klaimKronologi').value);
+            formData.append('foto_bukti', inputFile.files[0]);
+
+            const res = await fetch(KLAIM_URL, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+
+            const result = await res.json();
+
+            if (res.ok) {
+                modal.classList.add('hidden');
+                Swal.fire('Berhasil!', 'Klaim Anda telah dikirim. Tunggu kabar selanjutnya.', 'success');
+                formKlaim.reset();
+            } else {
+                throw new Error(result.message);
+            }
+
+        } catch (err) {
+            Swal.fire('Gagal', err.message || 'Terjadi kesalahan', 'error');
+        } finally {
+            submitBtn.innerText = 'Kirim Pengajuan';
+            submitBtn.disabled = false;
+        }
+    };
 });

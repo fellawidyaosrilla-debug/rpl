@@ -1,5 +1,3 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,153 +7,82 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// --- ENUMS ---
 enum Role {
   ADMIN
   USER
 }
 
-enum JenisLaporan {
-  KEHILANGAN
-  PENEMUAN
-}
-
 enum StatusLaporan {
-  MENUNGGU_VERIFIKASI // Default saat user baru lapor (Pending)
-  DIPUBLIKASIKAN      // Setelah Admin Klik "Setuju/Terima"
-  DIKLAIM             // Sedang ada proses klaim
-  SELESAI             // Barang sudah kembali ke pemilik
-  DITOLAK             // Admin menolak laporan (Spam/Tidak Jelas)
+  MENUNGGU_VERIFIKASI
+  DIPUBLIKASIKAN
+  DIKLAIM
+  SELESAI
+  DITOLAK
 }
 
 enum StatusKlaim {
   PENDING
-  DITERIMA  // Admin/Penemu setuju, No HP dibuka
-  DITOLAK
+  APPROVED
+  REJECTED
 }
-
-enum TipeNotifikasi {
-  INFO
-  MATCH     // Ada barang cocok
-  CLAIM     // Update status klaim
-}
-
-// --- TABEL DATA ---
 
 model User {
-  id_user    Int      @id @default(autoincrement())
-  username   String   @unique
+  id         Int       @id @default(autoincrement())
+  username   String    @unique
   password   String
-  role       Role     @default(USER)
-  created_at DateTime @default(now())
+  nama       String
+  no_hp      String    @unique
+  alamat     String?
+  role       Role      @default(USER)
+  created_at DateTime  @default(now())
 
-  // Relasi: 1 User punya 1 data Pelapor (Profile)
-  pelapor    Pelapor?
-   
-  // Relasi: User menerima notifikasi
+  laporan    Laporan[]
+  klaim      Klaim[]
   notifikasi Notifikasi[]
 }
 
-model Pelapor {
-  id_pelapor   Int     @id @default(autoincrement())
-  nama_lengkap String
-  no_hp        String  @unique @db.VarChar(20)
-  alamat       String? @db.Text
-  foto_profil  String?
-   
-  // Foreign Key ke User
-  id_user      Int     @unique
-  user         User    @relation(fields: [id_user], references: [id_user])
-
-  // Relasi: Daftar laporan yang dibuat
-  laporans     Laporan[] 
-
-  // Relasi: Daftar klaim yang diajukan (sebagai Pemilik Asli yang mengklaim barang orang lain)
-  klaim_diajukan Klaim[] @relation("KlaimUser")
-}
-
-model Kategori {
-  id_kategori   Int      @id @default(autoincrement())
-  nama_kategori String
-   
-  // Relasi: 1 Kategori punya banyak Barang
-  barangs       Barang[]
-}
-
-model Barang {
-  id_barang     Int      @id @default(autoincrement())
-  nama_barang   String
-  deskripsi     String   @db.Text
-  tgl_ditemukan DateTime
-  lokasi_detail String
-  foto_barang   String?
-   
-  // Foreign Key Kategori
-  id_kategori   Int
-  kategori      Kategori @relation(fields: [id_kategori], references: [id_kategori])
-
-  // Relasi: Barang ini milik laporan mana?
-  laporan       Laporan?
-}
-
 model Laporan {
-  id_laporan    Int           @id @default(autoincrement())
-  jenis_laporan JenisLaporan  // KEHILANGAN atau PENEMUAN
-  status        StatusLaporan @default(MENUNGGU_VERIFIKASI)
-  created_at    DateTime      @default(now())
+  id          Int           @id @default(autoincrement())
+  user_id     Int
+  user        User          @relation(fields: [user_id], references: [id])
+  nama_barang String
+  lokasi      String
+  jenis_laporan String   @default("KEHILANGAN") // Opsinya: 'KEHILANGAN' atau 'DITEMUKAN'
+  foto        String?
+  status      StatusLaporan @default(MENUNGGU_VERIFIKASI)
+  created_at  DateTime      @default(now())
 
-  // Foreign Key Pelapor (Siapa yang lapor?)
-  id_pelapor    Int
-  pelapor       Pelapor       @relation(fields: [id_pelapor], references: [id_pelapor])
-
-  // Foreign Key Barang (Barang apa?)
-  id_barang     Int           @unique
-  barang        Barang        @relation(fields: [id_barang], references: [id_barang])
-
-  // Relasi: Laporan ini bisa diklaim orang
-  klaims        Klaim[]
-  
-  // Relasi: Notifikasi terkait laporan ini (Opsional)
-  notifikasi    Notifikasi[]
+  klaim       Klaim[]
 }
 
 model Klaim {
-  id_klaim          Int         @id @default(autoincrement())
+  id_klaim      Int      @id @default(autoincrement())
   
-  // Data Pembuktian
-  bukti_kepemilikan String      @db.Text  // Deskripsi/Cerita Klaim
-  foto_bukti        String?     // Foto bon/foto lama (Opsional)
-  tgl_hilang        DateTime?   // Tanggal user merasa kehilangan
-
-  status            StatusKlaim @default(PENDING)
-  created_at        DateTime    @default(now())
-
-  // Barang apa yang diklaim?
-  id_laporan        Int
-  laporan           Laporan     @relation(fields: [id_laporan], references: [id_laporan])
+  // Relasi ke User
+  user_id       Int
+  user          User     @relation(fields: [user_id], references: [id])
   
-  // Siapa yang mengklaim? (Harus punya profil pelapor)
-  id_pemilik_klaim  Int
-  pemilik_klaim     Pelapor     @relation("KlaimUser", fields: [id_pemilik_klaim], references: [id_pelapor]) 
+  // Relasi ke Laporan
+  laporan_id    Int
+  
+  // === PERBAIKAN DI SINI (Ganti id_laporan jadi id) ===
+  laporan       Laporan  @relation(fields: [laporan_id], references: [id]) 
+
+  // Bukti-bukti
+  deskripsi_klaim String  @db.Text
+  kronologi       String  @db.Text
+  foto_bukti      String? 
+
+  status          String  @default("PENDING") 
+  created_at      DateTime @default(now())
 }
 
 model Notifikasi {
-  id_notifikasi Int            @id @default(autoincrement())
-  judul         String
-  pesan         String         @db.Text 
-  tipe          TipeNotifikasi @default(INFO) // Agar ikon di frontend bisa beda warna
-  is_read       Boolean        @default(false)
-  created_at    DateTime       @default(now())
-
-  // Relasi ke User (Penerima Notif)
-  id_user       Int
-  user          User           @relation(fields: [id_user], references: [id_user])
-
-  // Opsional: Link ke laporan tertentu (biar pas diklik langsung buka modal barang)
-  id_laporan    Int?
-  laporan       Laporan?       @relation(fields: [id_laporan], references: [id_laporan])
-
-  // Opsional: Link ke klaim (untuk notifikasi yang berhubungan dengan klaim)
-  id_klaim      Int?
-  klaim         Klaim?         @relation(fields: [id_klaim], references: [id_klaim])
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  user       User     @relation(fields: [user_id], references: [id])
+  judul      String
+  pesan      String
+  is_read    Boolean  @default(false)
+  created_at DateTime @default(now())
 }

@@ -144,7 +144,8 @@ body {
 .type-system { background-color: #e0f2fe; color: var(--color-info); }
 .type-match { background-color: #d1fae5; color: var(--color-success); }
 .type-claim { background-color: #fef3c7; color: var(--color-warning); }
-
+.type-request { background-color: #e9f5ff; color: var(--color-info); }
+.type-approved { background-color: #e6ffef; color: var(--color-success); }
 /* Content */
 .notif-content { flex: 1; }
 .notif-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
